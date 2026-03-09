@@ -30,7 +30,6 @@ export async function fetchUrlContent(url: string): Promise<string> {
     if (e.message === 'Request timed out') throw new Error('Request timed out');
     throw new Error('Network request failed');
   }
-
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
     throw new Error(error.detail || 'Failed to fetch URL');
@@ -39,12 +38,47 @@ export async function fetchUrlContent(url: string): Promise<string> {
   return data.text;
 }
 
+export async function scanContent(text: string, maxClaims = 50): Promise<{
+  totalClaims: number;
+  groupedClaims: number;
+  uniqueClaims: number;
+  claims: string[];
+  preview: string[];
+}> {
+  let response: Response;
+  try {
+    response = await fetchWithTimeout(`${BASE_URL}/api/scan`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, max_claims: maxClaims }),
+    }, 30000);
+  } catch (e: any) {
+    if (e.message === 'Request timed out') throw new Error('Request timed out');
+    throw new Error('Network request failed');
+  }
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.detail || 'Scan failed');
+  }
+
+  const data = await response.json();
+  return {
+    totalClaims: data.total_claims,
+    groupedClaims: data.grouped_claims,
+    uniqueClaims: data.unique_claims,
+    claims: data.claims,
+    preview: data.preview,
+  };
+}
+
 export async function processVerification(
   reportId: string,
   content: string,
   onProgress: (progress: number) => void,
   inputType: string = 'text',
   maxClaims: number = 50,
+  prescannedClaims?: string[], // ← pass claims from scan to skip re-extraction
 ): Promise<{ claims: any[]; creditsUsed: number }> {
   onProgress(10);
   let currentProgress = 10;
@@ -54,24 +88,19 @@ export async function processVerification(
   }, 1500);
 
   try {
-    let textToVerify = content;
-    if (inputType === 'url') {
-      onProgress(20);
-      textToVerify = await fetchUrlContent(content);
-    }
-
     let response: Response;
     try {
       response = await fetchWithTimeout(`${BASE_URL}/api/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          text: textToVerify,
+          text: content,
           input_type: inputType,
-            max_claims: maxClaims,
+          max_claims: maxClaims,
+          claims: prescannedClaims ?? null, // ← key fix
           source_url: inputType === 'url' ? content : undefined,
         }),
-      }, 60000); // 60s for verification
+      }, 60000);
     } catch (e: any) {
       if (e.message === 'Request timed out') throw new Error('Request timed out');
       throw new Error('Network request failed');

@@ -125,14 +125,15 @@ export default function VerifyScreen() {
   const [errorMessage, setErrorMessage] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [scanResult, setScanResult] = useState<{ totalClaims: number; groupedClaims: number; uniqueClaims: number } | null>(null);
-  const [extractedText, setExtractedText] = useState(''); // text after upload/fetch
+  const [scannedClaims, setScannedClaims] = useState<string[]>([]); // claims from /api/scan
+  const [extractedText, setExtractedText] = useState('');
   const [pendingReportId, setPendingReportId] = useState<string | null>(null);
 
   const clear = () => {
     setText(''); setUrl(''); setFile(null);
     setProgress(0); setCurrentStep(''); setErrorMessage('');
     setPhase('idle'); setShowModal(false); setScanResult(null);
-    setExtractedText(''); setPendingReportId(null);
+    setScannedClaims([]); setExtractedText(''); setPendingReportId(null);
   };
 
   const pickDocument = async () => {
@@ -203,16 +204,8 @@ export default function VerifyScreen() {
       const BASE_URL = 'https://web-production-79c0c.up.railway.app';
       let scanData: any;
       try {
-        const res = await fetch(`${BASE_URL}/api/scan`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text: textToScan, max_claims: MAX_CLAIMS }),
-        });
-        if (res.ok) {
-          scanData = await res.json();
-        } else {
-          throw new Error('scan_not_available');
-        }
+        const { scanContent } = await import('@/lib/verificationEngine');
+        scanData = await scanContent(textToScan, MAX_CLAIMS);
       } catch {
         // Fallback: estimate from text length if /api/scan not yet available
         const wordCount = textToScan.split(/\s+/).length;
@@ -222,6 +215,7 @@ export default function VerifyScreen() {
           total_claims: estimated + grouped,
           grouped_claims: grouped,
           unique_claims: estimated,
+          claims: [],
         };
       }
 
@@ -229,6 +223,8 @@ export default function VerifyScreen() {
       setProgress(100);
       setCurrentStep('Done!');
 
+      // Save claims for use in verify step
+      setScannedClaims(scanData.claims ?? []);
       setScanResult({
         totalClaims: scanData.total_claims,
         groupedClaims: scanData.grouped_claims,
@@ -280,6 +276,7 @@ export default function VerifyScreen() {
         },
         mode,
         maxClaims,
+        scannedClaims.length > 0 ? scannedClaims.slice(0, maxClaims) : undefined,
       );
 
       await deductCredits(creditsUsed || claims.length);
