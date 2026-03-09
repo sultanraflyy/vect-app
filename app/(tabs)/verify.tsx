@@ -23,6 +23,37 @@ const MAX_CLAIMS = 50;
 type InputType = 'text' | 'url' | 'pdf';
 type ScanPhase = 'idle' | 'scanning' | 'confirm' | 'verifying';
 
+// Normalize scan API response so UI never gets NaN/blank values
+function normalizeScanData(raw: any, maxClaims: number) {
+  const toNum = (v: any, fallback = 0) => {
+    const n = typeof v === 'number' ? v : Number(v);
+    return Number.isFinite(n) ? n : fallback;
+  };
+
+  const rawClaims = Array.isArray(raw?.claims) ? raw.claims : [];
+  const claims = rawClaims
+    .map((c: any) => {
+      if (typeof c === 'string') return c;
+      if (c?.text) return c.text;
+      if (c?.claim) return c.claim;
+      return '';
+    })
+    .map((s: string) => String(s).trim())
+    .filter(Boolean)
+    .slice(0, maxClaims);
+
+  const unique = toNum(raw?.unique_claims, claims.length);
+  const grouped = toNum(raw?.grouped_claims, 0);
+  const total = toNum(raw?.total_claims, unique + grouped);
+
+  return {
+    claims,
+    total_claims: total,
+    grouped_claims: grouped,
+    unique_claims: unique,
+  };
+}
+
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 const ModeTab = ({ icon: Icon, label, active, onPress }: { icon: typeof Type; label: string; active: boolean; onPress: () => void }) => {
@@ -201,30 +232,34 @@ export default function VerifyScreen() {
       setExtractedText(textToScan);
 
       // Call scan endpoint
-      const BASE_URL = 'https://web-production-79c0c.up.railway.app';
-      let scanData: any;
+      let scanRaw: any;
       try {
         const { scanContent } = await import('@/lib/verificationEngine');
-        scanData = await scanContent(textToScan, MAX_CLAIMS);
+        scanRaw = await scanContent(textToScan, MAX_CLAIMS);
       } catch {
         // Fallback: estimate from text length if /api/scan not yet available
-        const wordCount = textToScan.split(/\s+/).length;
-        const estimated = Math.min(Math.max(Math.floor(wordCount / 25), 1), MAX_CLAIMS);
-        const grouped = Math.floor(estimated * 0.15);
-        scanData = {
-          total_claims: estimated + grouped,
+        const wordCount = textToScan.split(/\s+/).filter(Boolean).length;
+        const estimatedUnique = Math.min(Math.max(Math.floor(wordCount / 25), 1), MAX_CLAIMS);
+        const grouped = Math.floor(estimatedUnique * 0.15);
+
+        const placeholderClaims = Array.from({ length: estimatedUnique }, (_, i) => `Claim ${i + 1}`);
+
+        scanRaw = {
+          total_claims: estimatedUnique + grouped,
           grouped_claims: grouped,
-          unique_claims: estimated,
-          claims: [],
+          unique_claims: estimatedUnique,
+          claims: placeholderClaims,
         };
       }
+
+      const scanData = normalizeScanData(scanRaw, MAX_CLAIMS);
 
       clearInterval(scanInterval);
       setProgress(100);
       setCurrentStep('Done!');
 
       // Save claims for use in verify step
-      setScannedClaims(scanData.claims ?? []);
+      setScannedClaims(scanData.claims);
       setScanResult({
         totalClaims: scanData.total_claims,
         groupedClaims: scanData.grouped_claims,

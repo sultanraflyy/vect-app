@@ -21,11 +21,15 @@ export function generateReportTitle(content: string, inputType: string): string 
 export async function fetchUrlContent(url: string): Promise<string> {
   let response: Response;
   try {
-    response = await fetchWithTimeout(`${BASE_URL}/api/fetch-url`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url }),
-    }, 20000);
+    response = await fetchWithTimeout(
+      `${BASE_URL}/api/fetch-url`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url }),
+      },
+      20000
+    );
   } catch (e: any) {
     if (e.message === 'Request timed out') throw new Error('Request timed out');
     throw new Error('Network request failed');
@@ -38,20 +42,27 @@ export async function fetchUrlContent(url: string): Promise<string> {
   return data.text;
 }
 
-export async function scanContent(text: string, maxClaims = 50): Promise<{
-  totalClaims: number;
-  groupedClaims: number;
-  uniqueClaims: number;
-  claims: string[];
-  preview: string[];
+export async function scanContent(
+  text: string,
+  maxClaims = 50
+): Promise<{
+  total_claims: number | string;
+  grouped_claims: number | string;
+  unique_claims: number | string;
+  claims: any[];
+  preview?: any[];
 }> {
   let response: Response;
   try {
-    response = await fetchWithTimeout(`${BASE_URL}/api/scan`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text, max_claims: maxClaims }),
-    }, 30000);
+    response = await fetchWithTimeout(
+      `${BASE_URL}/api/scan`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text, max_claims: maxClaims }),
+      },
+      30000
+    );
   } catch (e: any) {
     if (e.message === 'Request timed out') throw new Error('Request timed out');
     throw new Error('Network request failed');
@@ -63,13 +74,15 @@ export async function scanContent(text: string, maxClaims = 50): Promise<{
   }
 
   const data = await response.json();
-  return {
-    totalClaims: data.total_claims,
-    groupedClaims: data.grouped_claims,
-    uniqueClaims: data.unique_claims,
-    claims: data.claims,
-    preview: data.preview,
-  };
+  // Expected backend shape:
+  // {
+  //   total_claims,
+  //   grouped_claims,
+  //   unique_claims,
+  //   claims,
+  //   preview?
+  // }
+  return data;
 }
 
 export async function processVerification(
@@ -78,7 +91,7 @@ export async function processVerification(
   onProgress: (progress: number) => void,
   inputType: string = 'text',
   maxClaims: number = 50,
-  prescannedClaims?: string[], // ← pass claims from scan to skip re-extraction
+  prescannedClaims?: string[], // claims from scan to skip re-extraction
 ): Promise<{ claims: any[]; creditsUsed: number }> {
   onProgress(10);
   let currentProgress = 10;
@@ -90,17 +103,21 @@ export async function processVerification(
   try {
     let response: Response;
     try {
-      response = await fetchWithTimeout(`${BASE_URL}/api/verify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: content,
-          input_type: inputType,
-          max_claims: maxClaims,
-          claims: prescannedClaims ?? null, // ← key fix
-          source_url: inputType === 'url' ? content : undefined,
-        }),
-      }, 60000);
+      response = await fetchWithTimeout(
+        `${BASE_URL}/api/verify`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            text: content,
+            input_type: inputType,
+            max_claims: maxClaims,
+            claims: prescannedClaims ?? null,
+            source_url: inputType === 'url' ? content : undefined,
+          }),
+        },
+        60000
+      );
     } catch (e: any) {
       if (e.message === 'Request timed out') throw new Error('Request timed out');
       throw new Error('Network request failed');
@@ -116,14 +133,14 @@ export async function processVerification(
     const data = await response.json();
     onProgress(100);
 
-    const claims = data.claims.map((c: any) => ({
+    const claims = (data.claims || []).map((c: any) => ({
       id: c.id,
       text: c.text,
       status: c.status,
       confidence: c.confidence,
       category: 'general',
       explanation: c.explanation,
-      sources: c.sources?.map((s: any) => ({
+      sources: (c.sources || []).map((s: any) => ({
         title: s.title,
         url: s.url,
         authorityScore: Math.round((s.score || 0.5) * 100),
@@ -149,10 +166,14 @@ export async function uploadFile(file: {
 
   let response: Response;
   try {
-    response = await fetchWithTimeout(`${BASE_URL}/api/upload`, {
-      method: 'POST',
-      body: formData,
-    }, 30000);
+    response = await fetchWithTimeout(
+      `${BASE_URL}/api/upload`,
+      {
+        method: 'POST',
+        body: formData,
+      },
+      30000
+    );
   } catch (e: any) {
     if (e.message === 'Request timed out') throw new Error('Request timed out');
     throw new Error('Network request failed');
