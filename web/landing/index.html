@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vect — Truth Infrastructure · AI-Powered Claim Verification</title>
+  <meta name="description" content="Vect verifies every claim in your text, PDF, or URL with AI-powered research. Get a Trust Score in seconds. Start free." />
+  <meta property="og:title" content="Vect — Truth Infrastructure" />
+  <meta property="og:description" content="AI-powered claim verification. Paste text, upload a PDF, or drop a URL — get a Trust Score in seconds." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://vect.app" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;1,700;1,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy:    '#0A1628',
+            navy2:   '#0F1F3D',
+            blue:    '#0284C7',
+            sky:     '#38BDF8',
+            gold:    '#F59E0B',
+            success: '#10B981',
+            light:   '#F1F5F9',
+            muted:   '#94A3B8',
+            dim:     '#475569',
+          },
+          fontFamily: {
+            condensed: ['"Barlow Condensed"', 'sans-serif'],
+            sans:      ['Inter', 'sans-serif'],
+          },
+          keyframes: {
+            pulse_ring: {
+              '0%, 100%': { opacity: '0.35', transform: 'scale(1)' },
+              '50%':      { opacity: '0.08', transform: 'scale(1.18)' },
+            },
+            pulse_ring2: {
+              '0%, 100%': { opacity: '0.2',  transform: 'scale(1)' },
+              '50%':      { opacity: '0.05', transform: 'scale(1.28)' },
+            },
+            glow_pulse: {
+              '0%, 100%': { boxShadow: '0 0 40px 8px rgba(2,132,199,0.35)' },
+              '50%':      { boxShadow: '0 0 70px 20px rgba(2,132,199,0.6)' },
+            },
+            fade_up: {
+              from: { opacity: '0', transform: 'translateY(24px)' },
+              to:   { opacity: '1', transform: 'translateY(0)' },
+            },
+          },
+          animation: {
+            ring1:    'pulse_ring  3s ease-in-out infinite',
+            ring2:    'pulse_ring2 3s ease-in-out infinite 0.6s',
+            glow:     'glow_pulse  3s ease-in-out infinite',
+            fade_up:  'fade_up 0.6s ease forwards',
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    /* Base */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { background: #0A1628; }
+    body { background: #0A1628; color: #F1F5F9; font-family: 'Inter', sans-serif; margin: 0; }
+
+    /* Radial hero glow */
+    .hero-glow {
+      background: radial-gradient(ellipse 60% 50% at 50% 40%, rgba(2,132,199,0.18) 0%, transparent 70%);
+    }
+
+    /* Animated rings */
+    .ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1.5px solid rgba(56,189,248,0.55);
+      animation: pulse_ring 3s ease-in-out infinite;
+    }
+    .ring-2 {
+      border-color: rgba(2,132,199,0.4);
+      animation: pulse_ring2 3s ease-in-out infinite 0.6s;
+    }
+    @keyframes pulse_ring {
+      0%,100%{ opacity:.35; transform:scale(1); }
+      50%    { opacity:.08; transform:scale(1.18); }
+    }
+    @keyframes pulse_ring2 {
+      0%,100%{ opacity:.2;  transform:scale(1); }
+      50%    { opacity:.05; transform:scale(1.28); }
+    }
+    @keyframes glow_pulse {
+      0%,100%{ box-shadow: 0 0 40px 8px rgba(2,132,199,0.35); }
+      50%    { box-shadow: 0 0 70px 20px rgba(2,132,199,0.6); }
+    }
+    .shield-glow {
+      animation: glow_pulse 3s ease-in-out infinite;
+      border-radius: 50%;
+    }
+
+    /* Fade-in class added by Intersection Observer */
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* Code block scrollbar */
+    pre::-webkit-scrollbar { height: 4px; }
+    pre::-webkit-scrollbar-thumb { background: #0284C7; border-radius: 2px; }
+
+    /* Nav blur */
+    .nav-blur { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+
+    /* Gradient text */
+    .grad-text {
+      background: linear-gradient(135deg, #38BDF8 0%, #0284C7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .grad-gold {
+      background: linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     NAVBAR
+═══════════════════════════════════════════════════════ -->
+<header class="fixed top-0 left-0 right-0 z-50 nav-blur bg-navy/80 border-b border-white/5">
+  <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between" role="navigation" aria-label="Main navigation">
+
+    <!-- Logo -->
+    <a href="#" class="flex items-center gap-3 no-underline" aria-label="Vect home">
+      <!-- Shield SVG -->
+      <svg width="32" height="36" viewBox="0 0 32 36" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+        <path d="M16 1L2 6.5V18C2 26.284 8.268 33.714 16 35C23.732 33.714 30 26.284 30 18V6.5L16 1Z" fill="#0F1F3D" stroke="#0284C7" stroke-width="1.5"/>
+        <path d="M11 17.5L14.5 21L21 14" stroke="#38BDF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <span class="font-condensed font-bold italic text-2xl tracking-widest text-light">VECT</span>
+      <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-widest bg-blue/20 text-sky border border-sky/30 uppercase">
+        Truth Infrastructure
+      </span>
+    </a>
+
+    <!-- Desktop Nav -->
+    <ul class="hidden md:flex items-center gap-8 list-none m-0 p-0">
+      <li><a href="#features" class="text-sm text-muted hover:text-light transition-colors">Features</a></li>
+      <li><a href="#how-it-works" class="text-sm text-muted hover:text-light transition-colors">How It Works</a></li>
+      <li><a href="#pricing" class="text-sm text-muted hover:text-light transition-colors">Pricing</a></li>
+      <li><a href="#api" class="text-sm text-muted hover:text-light transition-colors">API</a></li>
+    </ul>
+
+    <!-- CTA -->
+    <a href="#pricing"
+       class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue text-white text-sm font-semibold hover:bg-blue/90 transition-colors focus:outline-none focus:ring-2 focus:ring-sky/50">
+      Get Started Free
+    </a>
+  </nav>
+</header>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     HERO
+═══════════════════════════════════════════════════════ -->
+<main>
+<section class="hero-glow relative overflow-hidden pt-32 pb-24 px-4 text-center" aria-labelledby="hero-heading">
+
+  <!-- Animated Shield -->
+  <div class="relative inline-flex items-center justify-center mb-10" aria-hidden="true">
+    <!-- Outer ring 2 -->
+    <div class="ring ring-2 absolute" style="width:220px;height:220px;"></div>
+    <!-- Outer ring 1 -->
+    <div class="ring absolute" style="width:170px;height:170px;"></div>
+    <!-- Shield container -->
+    <div class="shield-glow relative z-10 w-24 h-24 flex items-center justify-center rounded-full bg-navy2">
+      <svg width="52" height="58" viewBox="0 0 32 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Vect shield logo">
+        <path d="M16 1L2 6.5V18C2 26.284 8.268 33.714 16 35C23.732 33.714 30 26.284 30 18V6.5L16 1Z" fill="#0F1F3D" stroke="#0284C7" stroke-width="1.5"/>
+        <path d="M11 17.5L14.5 21L21 14" stroke="#38BDF8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Headline -->
+  <h1 id="hero-heading" class="font-condensed font-bold italic text-5xl sm:text-6xl lg:text-7xl tracking-tight mb-4 leading-none">
+    <span class="grad-text">Verify anything.</span><br />
+    <span class="text-light">Instantly.</span>
+  </h1>
+
+  <!-- Sub-headline -->
+  <p class="max-w-2xl mx-auto text-muted text-lg sm:text-xl mb-10 leading-relaxed">
+    Vect extracts every claim from your text, URL, or document — then verifies each one with AI-powered research.
+    Get a <span class="text-sky font-semibold">Trust Score</span> in seconds.
+  </p>
+
+  <!-- CTAs -->
+  <div class="flex flex-col sm:flex-row gap-3 justify-center">
+    <a href="#pricing"
+       class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-blue text-white font-semibold text-base hover:bg-blue/90 transition-all hover:scale-105 focus:outline-none focus:ring-2 focus:ring-sky/50">
+      Start for Free
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+    </a>
+    <a href="#pricing"
+       class="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl border border-sky/30 text-sky font-semibold text-base hover:bg-sky/10 transition-all focus:outline-none focus:ring-2 focus:ring-sky/50">
+      View Pricing
+    </a>
+  </div>
+
+  <!-- Trust indicators -->
+  <div class="mt-12 flex flex-wrap gap-6 justify-center text-sm text-muted">
+    <div class="flex items-center gap-2">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#10B981" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+      No credit card required
+    </div>
+    <div class="flex items-center gap-2">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#10B981" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+      150 free verifications/month
+    </div>
+    <div class="flex items-center gap-2">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#10B981" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+      7-day money-back guarantee
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     FEATURES STRIP
+═══════════════════════════════════════════════════════ -->
+<section id="features" class="py-20 px-4 max-w-7xl mx-auto" aria-labelledby="features-heading">
+  <div class="text-center mb-14 reveal">
+    <h2 id="features-heading" class="font-condensed font-bold italic text-4xl sm:text-5xl text-light tracking-tight mb-3">
+      Everything you need to <span class="grad-text">trust your sources</span>
+    </h2>
+    <p class="text-muted text-lg max-w-xl mx-auto">Vect handles the entire fact-checking pipeline — so you can focus on what matters.</p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+    <!-- Feature 1 -->
+    <article class="reveal rounded-2xl bg-navy2 border border-white/5 p-8 hover:border-blue/30 transition-colors group">
+      <div class="w-12 h-12 rounded-xl bg-blue/10 flex items-center justify-center mb-5 text-2xl group-hover:bg-blue/20 transition-colors" aria-hidden="true">
+        🔍
+      </div>
+      <h3 class="font-condensed font-bold text-2xl text-light mb-3 tracking-wide">Claim Extraction</h3>
+      <p class="text-muted leading-relaxed">Automatically detects and groups every verifiable claim from your content. Up to 50 claims per scan — duplicates intelligently merged.</p>
+    </article>
+
+    <!-- Feature 2 -->
+    <article class="reveal rounded-2xl bg-navy2 border border-white/5 p-8 hover:border-blue/30 transition-colors group" style="transition-delay:0.1s">
+      <div class="w-12 h-12 rounded-xl bg-blue/10 flex items-center justify-center mb-5 text-2xl group-hover:bg-blue/20 transition-colors" aria-hidden="true">
+        🌐
+      </div>
+      <h3 class="font-condensed font-bold text-2xl text-light mb-3 tracking-wide">Deep Research</h3>
+      <p class="text-muted leading-relaxed">Each claim is independently researched across the web with AI agents. Primary sources, conflicting evidence, and confidence ratings included.</p>
+    </article>
+
+    <!-- Feature 3 -->
+    <article class="reveal rounded-2xl bg-navy2 border border-white/5 p-8 hover:border-blue/30 transition-colors group" style="transition-delay:0.2s">
+      <div class="w-12 h-12 rounded-xl bg-blue/10 flex items-center justify-center mb-5 text-2xl group-hover:bg-blue/20 transition-colors" aria-hidden="true">
+        📊
+      </div>
+      <h3 class="font-condensed font-bold text-2xl text-light mb-3 tracking-wide">Trust Score</h3>
+      <p class="text-muted leading-relaxed">Get an instant 0–100 Trust Score for your entire document. Export detailed audit reports as <span class="text-sky font-medium">PDF</span> or <span class="text-sky font-medium">CSV</span>.</p>
+    </article>
+
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     HOW IT WORKS
+═══════════════════════════════════════════════════════ -->
+<section id="how-it-works" class="py-20 px-4" aria-labelledby="how-heading">
+  <div class="max-w-4xl mx-auto">
+    <div class="text-center mb-14 reveal">
+      <h2 id="how-heading" class="font-condensed font-bold italic text-4xl sm:text-5xl text-light tracking-tight mb-3">
+        How it <span class="grad-text">works</span>
+      </h2>
+      <p class="text-muted text-lg">Four steps from raw content to verified report.</p>
+    </div>
+
+    <ol class="space-y-0 list-none p-0 m-0" role="list">
+
+      <!-- Step 1 -->
+      <li class="reveal flex gap-6 items-start pb-10 relative">
+        <div class="relative flex-shrink-0">
+          <div class="w-12 h-12 rounded-full bg-blue flex items-center justify-center font-condensed font-bold text-xl text-white z-10 relative">1</div>
+          <div class="absolute top-12 left-1/2 -translate-x-1/2 w-0.5 h-full bg-gradient-to-b from-blue/60 to-transparent" aria-hidden="true"></div>
+        </div>
+        <div class="pt-2">
+          <h3 class="font-condensed font-bold text-2xl text-light mb-1 tracking-wide">Paste, upload, or drop a URL</h3>
+          <p class="text-muted leading-relaxed">Submit any text blob, PDF document, or web URL. Vect ingests it instantly.</p>
+        </div>
+      </li>
+
+      <!-- Step 2 -->
+      <li class="reveal flex gap-6 items-start pb-10 relative" style="transition-delay:0.1s">
+        <div class="relative flex-shrink-0">
+          <div class="w-12 h-12 rounded-full bg-blue/20 border border-blue/40 flex items-center justify-center font-condensed font-bold text-xl text-sky z-10 relative">2</div>
+          <div class="absolute top-12 left-1/2 -translate-x-1/2 w-0.5 h-full bg-gradient-to-b from-blue/30 to-transparent" aria-hidden="true"></div>
+        </div>
+        <div class="pt-2">
+          <h3 class="font-condensed font-bold text-2xl text-light mb-1 tracking-wide">Claims extracted &amp; grouped</h3>
+          <p class="text-muted leading-relaxed">Vect's AI identifies every verifiable claim and intelligently deduplicates near-identical assertions.</p>
+        </div>
+      </li>
+
+      <!-- Step 3 -->
+      <li class="reveal flex gap-6 items-start pb-10 relative" style="transition-delay:0.2s">
+        <div class="relative flex-shrink-0">
+          <div class="w-12 h-12 rounded-full bg-blue/20 border border-blue/40 flex items-center justify-center font-condensed font-bold text-xl text-sky z-10 relative">3</div>
+          <div class="absolute top-12 left-1/2 -translate-x-1/2 w-0.5 h-full bg-gradient-to-b from-blue/30 to-transparent" aria-hidden="true"></div>
+        </div>
+        <div class="pt-2">
+          <h3 class="font-condensed font-bold text-2xl text-light mb-1 tracking-wide">AI agents research each claim</h3>
+          <p class="text-muted leading-relaxed">Parallel AI agents hit live sources — academic databases, news archives, official records — and rate confidence for each claim.</p>
+        </div>
+      </li>
+
+      <!-- Step 4 -->
+      <li class="reveal flex gap-6 items-start" style="transition-delay:0.3s">
+        <div class="flex-shrink-0">
+          <div class="w-12 h-12 rounded-full bg-success/20 border border-success/40 flex items-center justify-center font-condensed font-bold text-xl text-success">4</div>
+        </div>
+        <div class="pt-2">
+          <h3 class="font-condensed font-bold text-2xl text-light mb-1 tracking-wide">Trust Score + full audit report</h3>
+          <p class="text-muted leading-relaxed">Receive a 0–100 Trust Score, per-claim verdicts, confidence ratings, and sourced evidence. Export as PDF or CSV.</p>
+        </div>
+      </li>
+
+    </ol>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     PRICING
+═══════════════════════════════════════════════════════ -->
+<section id="pricing" class="py-20 px-4" aria-labelledby="pricing-heading">
+  <div class="max-w-6xl mx-auto">
+
+    <div class="text-center mb-14 reveal">
+      <h2 id="pricing-heading" class="font-condensed font-bold italic text-4xl sm:text-5xl text-light tracking-tight mb-3">
+        Simple, <span class="grad-text">transparent pricing</span>
+      </h2>
+      <p class="text-muted text-lg max-w-xl mx-auto">Pay only for what you verify. Upgrade or cancel any time.</p>
+    </div>
+
+    <!-- Plan Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+
+      <!-- Free -->
+      <article class="reveal rounded-2xl bg-navy2 border border-white/8 p-8 flex flex-col">
+        <div class="mb-6">
+          <h3 class="font-condensed font-bold text-3xl text-light tracking-wide mb-1">Free</h3>
+          <div class="flex items-end gap-1 mb-3">
+            <span class="font-condensed font-bold text-5xl text-light">$0</span>
+            <span class="text-muted mb-1.5">/month</span>
+          </div>
+          <p class="text-muted text-sm">Perfect for individuals exploring claim verification.</p>
+        </div>
+
+        <ul class="space-y-3 mb-8 flex-1 list-none p-0 m-0">
+          <li class="flex items-start gap-2.5 text-sm">
+            <svg class="flex-shrink-0 mt-0.5" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#10B981" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+            <span class="text-light"><strong>150</strong> standard verifications/month</span>
+          </li>
+          <li class="flex items-start gap-2.5 text-sm">
+            <svg class="flex-shrink-0 mt-0.5" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#10B981" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+            <span class="text-light">Standard web search</span>
+          </li>
+          <li class="flex items-start gap-2.5 text-sm">
+            <svg class="flex-shrink-0 mt-0.5" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#10B981" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+            <span class="text-light">Claim grouping &amp; deduplication</span>
+          </li>
+          <li class="flex items-start gap-2.5 text-sm">
+            <svg class="flex-shrink-0 mt-0.5" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#10B981" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+            <span class="text-light">1 seat</span>
+          </li>
+          <li class="flex items-start gap-2.5 text-sm">
+            <svg class="flex-shrink-0 mt-0.5" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#475569" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14"/></svg>
+            <span class="text-dim">Deep research</span>
+          </li>
+          <li class="flex items-start gap-2.5 text-sm">
+            <svg class="flex-shrink-0 mt-0.5" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#475569" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14"/></svg>
+            <span class="text-dim">PDF/CSV export</span>
+          </li>
+          <li class="flex items-start gap-2.5 text-sm">
+            <svg class="flex-shrink-0 mt-0.5" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#475569" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14"/></svg>
+            <span class="text-dim">API access</span>
+          </li>
+        </ul>
+
+        <a href="https://vect.app" target="_blank" rel="noopener noreferrer"
+           class="block text-center py-3 rounded-xl border border-white/15 text-light font-semibold text-sm hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-white/20">
+          Get Started Free
+        </a>
+      </article>
+
+      <!-- Pro (highlighted) -->
+      <article class="reveal rounded-2xl bg-navy2 border-2 border-blue p-8 flex flex-col relative shadow-[0_0_40px_rgba(2,132,199,0.2)]" style="transition-delay:0.1s">
+        <!-- Badge -->
+        <div class="absolute -top-3.5 left-1/2 -translate-x-1/2">
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold tracking-widest bg-blue text-white uppercase">
+            Most Popular
+          </span>
+        </div>
+
+        <div class="mb-6">
+          <h3 class="font-condensed font-bold text-3xl text-sky tracking-wide mb-1">Pro</h3>
+          <div class="flex items-end gap-1 mb-3">
+            <span class="font-condensed font-bold text-5xl text-light">$14.99</span>
+            <span class="text-muted mb-1.5">/month</span>
+          </div>
+          <p class="text-muted text-sm">For journalists, researchers, and power users.</p>
+        </div>
+
+        <ul class="space-y-3 mb-8 flex-1 list-none p-0 m-0">
+          <li class="flex items-start gap-2.5 text-sm">
+            <svg class="flex-shrink-0 mt-0.5" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#10B981" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+            <span class="text-light"><strong>1,500</strong> standard + <strong>150</strong> deep credits/month</span>
+          </li>
+          <li class="flex items-start gap-2.5 text-sm">
+            <svg class="flex-shrink-0 mt-0.5" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#10B981" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+            <span class="text-light">Deep research (AI-powered)</span>
+          </li>
+          <li class="flex items-start gap-2.5 text-sm">
+            <svg class="flex-shrink-0 mt-0.5" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#10B981" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+            <span class="text-light">PDF &amp; CSV export</span>
+          </li>
+          <li class="flex items-start gap-2.5 text-sm">
+            <svg class="flex-shrink-0 mt-0.5" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#10B981" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+            <span class="text-light">Basic analytics dashboard</span>
+          </li>
+          <li class="flex items-start gap-2.5 text-sm">
+            <svg class="flex-shrink-0 mt-0.5" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#10B981" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+            <span class="text-light">1 seat</span>
+          </li>
+          <li class="flex items-start gap-2.5 text-sm">
+            <svg class="flex-shrink-0 mt-0.5" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#475569" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14"/></svg>
+            <span class="text-dim">API access</span>
+          </li>
+          <li class="flex items-start gap-2.5 text-sm">
+            <svg class="flex-shrink-0 mt-0.5" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#475569" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14"/></svg>
+            <span class="text-dim">Priority support</span>
+          </li>
+        </ul>
+
+        <a href="https://vect.lemonsqueezy.com/checkout/pro" target="_blank" rel="noopener noreferrer"
+           class="block text-center py-3 rounded-xl bg-blue text-white font-semibold text-sm hover:bg-blue/90 transition-all hover:shadow-[0_0_20px_rgba(2,132,199,0.4)] focus:outline-none focus:ring-2 focus:ring-sky/50">
+          Upgrade to Pro
+        </a>
+      </article>
+
+      <!-- Business (gold) -->
+      <article class="reveal rounded-2xl bg-navy2 border-2 border-gold/60 p-8 flex flex-col relative shadow-[0_0_40px_rgba(245,158,11,0.12)]" style="transition-delay:0.2s">
+        <!-- Badge -->
+        <div class="absolute -top-3.5 left-1/2 -translate-x-1/2">
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold tracking-widest bg-gold text-navy font-black uppercase">
+            Best Value
+          </span>
+        </div>
+
+        <div class="mb-6">
+          <h3 class="font-condensed font-bold text-3xl tracking-wide mb-1 grad-gold">Business</h3>
+          <div class="flex items-end gap-1 mb-3">
+            <span class="font-condensed font-bold text-5xl text-light">$149</span>
+            <span class="text-muted mb-1.5">/month</span>
+          </div>
+          <p class="text-muted text-sm">For teams, newsrooms, and compliance departments.</p>
+        </div>
+
+        <ul class="space-y-3 mb-8 flex-1 list-none p-0 m-0">
+          <li class="flex items-start gap-2.5 text-sm">
+            <svg class="flex-shrink-0 mt-0.5" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#10B981" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+            <span class="text-light"><strong>15,000</strong> standard + <strong>1,500</strong> deep credits/month</span>
+          </li>
+          <li class="flex items-start gap-2.5 text-sm">
+            <svg class="flex-shrink-0 mt-0.5" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#10B981" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+            <span class="text-light"><strong>5 seats</strong> included</span>
+          </li>
+          <li class="flex items-start gap-2.5 text-sm">
+            <svg class="flex-shrink-0 mt-0.5" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#10B981" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+            <span class="text-light">Full analytics dashboard</span>
+          </li>
+          <li class="flex items-start gap-2.5 text-sm">
+            <svg class="flex-shrink-0 mt-0.5" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#10B981" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+            <span class="text-light">API access</span>
+          </li>
+          <li class="flex items-start gap-2.5 text-sm">
+            <svg class="flex-shrink-0 mt-0.5" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#10B981" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+            <span class="text-light">Priority support</span>
+          </li>
+          <li class="flex items-start gap-2.5 text-sm">
+            <svg class="flex-shrink-0 mt-0.5" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#10B981" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+            <span class="text-light">PDF &amp; CSV export</span>
+          </li>
+          <li class="flex items-start gap-2.5 text-sm">
+            <svg class="flex-shrink-0 mt-0.5" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#10B981" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+            <span class="text-light">Deep research (all seats)</span>
+          </li>
+        </ul>
+
+        <a href="https://vect.lemonsqueezy.com/checkout/business" target="_blank" rel="noopener noreferrer"
+           class="block text-center py-3 rounded-xl bg-gold text-navy font-bold text-sm hover:bg-gold/90 transition-all hover:shadow-[0_0_20px_rgba(245,158,11,0.4)] focus:outline-none focus:ring-2 focus:ring-gold/50">
+          Upgrade to Business
+        </a>
+      </article>
+
+    </div><!-- /plan cards -->
+
+    <!-- Top-Up Credits -->
+    <div class="reveal rounded-2xl bg-navy2 border border-white/5 p-8">
+      <h3 class="font-condensed font-bold text-2xl text-light tracking-wide mb-2">Top-Up Credits <span class="text-muted font-normal text-lg">— one-time, no expiry</span></h3>
+      <p class="text-muted text-sm mb-6">Need more? Top up any time. Credits never expire and stack with your subscription.</p>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+        <!-- Standard credits -->
+        <div>
+          <p class="text-xs font-semibold tracking-widest text-sky uppercase mb-3">Standard Credits</p>
+          <div class="space-y-2">
+            <div class="flex items-center justify-between py-2.5 px-4 rounded-lg bg-navy/60 border border-white/5">
+              <div>
+                <span class="text-light font-medium text-sm">Starter</span>
+                <span class="text-muted text-xs ml-2">500 credits</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-muted text-xs">$0.0100/credit</span>
+                <a href="https://vect.lemonsqueezy.com/checkout/standard-500" target="_blank" rel="noopener noreferrer"
+                   class="text-xs font-semibold text-sky border border-sky/30 px-3 py-1 rounded-lg hover:bg-sky/10 transition-colors">
+                  $4.99
+                </a>
+              </div>
+            </div>
+            <div class="flex items-center justify-between py-2.5 px-4 rounded-lg bg-navy/60 border border-white/5">
+              <div>
+                <span class="text-light font-medium text-sm">Standard</span>
+                <span class="text-muted text-xs ml-2">1,500 credits</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-muted text-xs">$0.0087/credit</span>
+                <a href="https://vect.lemonsqueezy.com/checkout/standard-1500" target="_blank" rel="noopener noreferrer"
+                   class="text-xs font-semibold text-sky border border-sky/30 px-3 py-1 rounded-lg hover:bg-sky/10 transition-colors">
+                  $12.99
+                </a>
+              </div>
+            </div>
+            <div class="flex items-center justify-between py-2.5 px-4 rounded-lg bg-navy/60 border border-white/5">
+              <div>
+                <span class="text-light font-medium text-sm">Bulk</span>
+                <span class="text-muted text-xs ml-2">4,000 credits</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-muted text-xs">$0.0075/credit</span>
+                <a href="https://vect.lemonsqueezy.com/checkout/standard-4000" target="_blank" rel="noopener noreferrer"
+                   class="text-xs font-semibold text-sky border border-sky/30 px-3 py-1 rounded-lg hover:bg-sky/10 transition-colors">
+                  $29.99
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Deep credits -->
+        <div>
+          <p class="text-xs font-semibold tracking-widest text-gold uppercase mb-3">Deep Research Credits</p>
+          <div class="space-y-2">
+            <div class="flex items-center justify-between py-2.5 px-4 rounded-lg bg-navy/60 border border-white/5">
+              <div>
+                <span class="text-light font-medium text-sm">Starter Deep</span>
+                <span class="text-muted text-xs ml-2">50 credits</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-muted text-xs">$0.0998/credit</span>
+                <a href="https://vect.lemonsqueezy.com/checkout/deep-50" target="_blank" rel="noopener noreferrer"
+                   class="text-xs font-semibold text-gold border border-gold/30 px-3 py-1 rounded-lg hover:bg-gold/10 transition-colors">
+                  $4.99
+                </a>
+              </div>
+            </div>
+            <div class="flex items-center justify-between py-2.5 px-4 rounded-lg bg-navy/60 border border-white/5">
+              <div>
+                <span class="text-light font-medium text-sm">Standard Deep</span>
+                <span class="text-muted text-xs ml-2">200 credits</span>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="text-muted text-xs">$0.0849/credit</span>
+                <a href="https://vect.lemonsqueezy.com/checkout/deep-200" target="_blank" rel="noopener noreferrer"
+                   class="text-xs font-semibold text-gold border border-gold/30 px-3 py-1 rounded-lg hover:bg-gold/10 transition-colors">
+                  $16.99
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /top-up -->
+
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     API TEASER
+═══════════════════════════════════════════════════════ -->
+<section id="api" class="py-20 px-4 bg-navy2/50" aria-labelledby="api-heading">
+  <div class="max-w-5xl mx-auto">
+
+    <div class="text-center mb-12 reveal">
+      <h2 id="api-heading" class="font-condensed font-bold italic text-4xl sm:text-5xl text-light tracking-tight mb-3">
+        Built for <span class="grad-text">developers</span>
+      </h2>
+      <p class="text-muted text-lg max-w-xl mx-auto">Integrate claim verification directly into your product with the Vect REST API.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+
+      <!-- Request -->
+      <div class="reveal">
+        <p class="text-xs font-semibold tracking-widest text-sky uppercase mb-3">Request</p>
+        <div class="rounded-xl overflow-hidden border border-white/8 bg-[#060E1A]">
+          <div class="flex items-center justify-between px-4 py-2.5 bg-white/4 border-b border-white/5">
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue/20 text-sky tracking-wider">POST</span>
+              <span class="text-muted text-xs font-mono">https://api.vect.app/api/verify</span>
+            </div>
+            <div class="flex gap-1.5" aria-hidden="true">
+              <div class="w-3 h-3 rounded-full bg-white/10"></div>
+              <div class="w-3 h-3 rounded-full bg-white/10"></div>
+              <div class="w-3 h-3 rounded-full bg-white/10"></div>
+            </div>
+          </div>
+          <pre class="p-4 text-sm font-mono overflow-x-auto leading-relaxed m-0"><code><span class="text-white/40">{</span>
+  <span class="text-sky">"text"</span><span class="text-white/40">:</span> <span class="text-success">"The moon landing happened in 1969."</span><span class="text-white/40">,</span>
+  <span class="text-sky">"max_claims"</span><span class="text-white/40">:</span> <span class="text-gold">10</span><span class="text-white/40">,</span>
+  <span class="text-sky">"deep_research"</span><span class="text-white/40">:</span> <span class="text-blue">false</span>
+<span class="text-white/40">}</span></code></pre>
+        </div>
+      </div>
+
+      <!-- Response -->
+      <div class="reveal" style="transition-delay:0.15s">
+        <p class="text-xs font-semibold tracking-widest text-success uppercase mb-3">Response · 200 OK</p>
+        <div class="rounded-xl overflow-hidden border border-success/20 bg-[#060E1A]">
+          <div class="flex items-center justify-between px-4 py-2.5 bg-success/5 border-b border-success/10">
+            <div class="flex items-center gap-2">
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-success/20 text-success tracking-wider">200</span>
+              <span class="text-muted text-xs font-mono">application/json</span>
+            </div>
+          </div>
+          <pre class="p-4 text-sm font-mono overflow-x-auto leading-relaxed m-0"><code><span class="text-white/40">{</span>
+  <span class="text-sky">"trust_score"</span><span class="text-white/40">:</span> <span class="text-gold">94</span><span class="text-white/40">,</span>
+  <span class="text-sky">"status"</span><span class="text-white/40">:</span> <span class="text-success">"verified"</span><span class="text-white/40">,</span>
+  <span class="text-sky">"claims"</span><span class="text-white/40">: [</span>
+    <span class="text-white/40">{</span>
+      <span class="text-sky">"text"</span><span class="text-white/40">:</span> <span class="text-success">"Moon landing in 1969"</span><span class="text-white/40">,</span>
+      <span class="text-sky">"verdict"</span><span class="text-white/40">:</span> <span class="text-success">"TRUE"</span><span class="text-white/40">,</span>
+      <span class="text-sky">"confidence"</span><span class="text-white/40">:</span> <span class="text-gold">0.99</span><span class="text-white/40">,</span>
+      <span class="text-sky">"sources"</span><span class="text-white/40">: [</span><span class="text-success">"nasa.gov"</span><span class="text-white/40">]</span>
+    <span class="text-white/40">}</span>
+  <span class="text-white/40">]</span>
+<span class="text-white/40">}</span></code></pre>
+        </div>
+      </div>
+
+    </div><!-- /grid -->
+
+    <div class="text-center mt-10 reveal">
+      <a href="mailto:hello@vect.app"
+         class="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-sky/30 text-sky font-semibold text-sm hover:bg-sky/10 transition-colors focus:outline-none focus:ring-2 focus:ring-sky/50">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 0 1-.825-.242m9.345-8.334a2.126 2.126 0 0 0-.476-.095 48.64 48.64 0 0 0-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0 0 11.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155"/></svg>
+        Read the API Docs
+      </a>
+      <p class="text-muted text-xs mt-3">API access available on Business plan. Contact us to get started.</p>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     CTA BANNER
+═══════════════════════════════════════════════════════ -->
+<section class="py-20 px-4" aria-label="Call to action">
+  <div class="max-w-3xl mx-auto text-center reveal">
+    <div class="rounded-3xl bg-gradient-to-br from-navy2 to-[#0a1628] border border-blue/20 p-12 shadow-[0_0_60px_rgba(2,132,199,0.1)]">
+      <h2 class="font-condensed font-bold italic text-4xl sm:text-5xl text-light tracking-tight mb-4">
+        Start verifying for <span class="grad-text">free today</span>
+      </h2>
+      <p class="text-muted text-lg mb-8">No credit card required. 150 verifications per month, forever.</p>
+      <a href="#pricing"
+         class="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-blue text-white font-bold text-base hover:bg-blue/90 transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(2,132,199,0.5)] focus:outline-none focus:ring-2 focus:ring-sky/50">
+        Get Started Free
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+</main><!-- /main -->
+
+
+<!-- ═══════════════════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════════════════ -->
+<footer class="border-t border-white/5 py-12 px-4" role="contentinfo">
+  <div class="max-w-7xl mx-auto">
+
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-8 mb-8">
+
+      <!-- Logo + tagline -->
+      <div class="flex items-center gap-3">
+        <svg width="28" height="32" viewBox="0 0 32 36" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 1L2 6.5V18C2 26.284 8.268 33.714 16 35C23.732 33.714 30 26.284 30 18V6.5L16 1Z" fill="#0F1F3D" stroke="#0284C7" stroke-width="1.5"/>
+          <path d="M11 17.5L14.5 21L21 14" stroke="#38BDF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div>
+          <span class="font-condensed font-bold italic text-xl tracking-widest text-light">VECT</span>
+          <p class="text-muted text-xs tracking-widest uppercase mt-0.5">Truth Infrastructure</p>
+        </div>
+      </div>
+
+      <!-- Links -->
+      <nav aria-label="Footer navigation">
+        <ul class="flex flex-wrap gap-6 list-none p-0 m-0">
+          <li><a href="mailto:hello@vect.app" class="text-muted text-sm hover:text-light transition-colors">hello@vect.app</a></li>
+          <li><a href="#" class="text-muted text-sm hover:text-light transition-colors">Privacy</a></li>
+          <li><a href="#" class="text-muted text-sm hover:text-light transition-colors">Terms</a></li>
+          <li><a href="mailto:hello@vect.app" class="text-muted text-sm hover:text-light transition-colors">Contact</a></li>
+        </ul>
+      </nav>
+
+    </div>
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-6 border-t border-white/5">
+      <p class="text-dim text-sm">© 2026 Vect. All rights reserved.</p>
+      <div class="flex items-center gap-2 text-dim text-sm">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25z"/></svg>
+        Secure payments via LemonSqueezy
+      </div>
+    </div>
+
+  </div>
+</footer>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     INTERSECTION OBSERVER — scroll fade-in
+═══════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.reveal').forEach(function (el) {
+    io.observe(el);
+  });
+
+  // Smooth active nav highlight
+  var sections = document.querySelectorAll('section[id]');
+  var navLinks = document.querySelectorAll('nav a[href^="#"]');
+
+  var sio = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        navLinks.forEach(function (link) {
+          if (link.getAttribute('href') === '#' + entry.target.id) {
+            link.classList.add('text-light');
+            link.classList.remove('text-muted');
+          } else {
+            link.classList.remove('text-light');
+            link.classList.add('text-muted');
+          }
+        });
+      }
+    });
+  }, { rootMargin: '-40% 0px -40% 0px' });
+
+  sections.forEach(function (s) { sio.observe(s); });
+}());
+</script>
+
+</body>
+</html>
