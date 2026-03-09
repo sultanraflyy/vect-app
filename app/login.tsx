@@ -155,6 +155,37 @@ export default function LoginScreen() {
               <Text style={[styles.forgotText, { color: C.tint }]}>Forgot password?</Text>
             </TouchableOpacity>
           )}
+
+          {Platform.OS === 'web' && (
+            <>
+              <View style={styles.dividerRow}>
+                <View style={[styles.dividerLine, { backgroundColor: C.border }]} />
+                <Text style={[styles.dividerText, { color: C.textTertiary }]}>or</Text>
+                <View style={[styles.dividerLine, { backgroundColor: C.border }]} />
+              </View>
+
+              <TouchableOpacity
+                style={[styles.googleBtn, { backgroundColor: C.surface, borderColor: C.border }]}
+                onPress={async () => {
+                  try {
+                    const { error } = await supabase.auth.signInWithOAuth({
+                      provider: 'google',
+                      options: {
+                        redirectTo: window.location.origin + '/auth/callback',
+                      },
+                    });
+                    if (error) Alert.alert('Error', error.message);
+                  } catch (e: any) {
+                    Alert.alert('Error', e.message || 'Something went wrong.');
+                  }
+                }}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.googleIcon}>G</Text>
+                <Text style={[styles.googleBtnText, { color: C.text }]}>Continue with Google</Text>
+              </TouchableOpacity>
+            </>
+          )}
         </View>
 
         {/* Security note */}
@@ -228,4 +259,15 @@ const styles = StyleSheet.create({
 
   securityNote: { alignItems: 'center', paddingHorizontal: 8 },
   securityText: { fontSize: 12, textAlign: 'center', lineHeight: 18 },
+
+  dividerRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  dividerLine: { flex: 1, height: StyleSheet.hairlineWidth },
+  dividerText: { fontSize: 12, fontWeight: '500' },
+
+  googleBtn: {
+    height: 54, borderRadius: 16, borderWidth: StyleSheet.hairlineWidth,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
+  },
+  googleIcon: { fontSize: 18, fontWeight: '700', color: '#4285F4' },
+  googleBtnText: { fontSize: 15, fontWeight: '600' },
 });
