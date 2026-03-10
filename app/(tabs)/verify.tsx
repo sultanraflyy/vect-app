@@ -14,7 +14,12 @@ import * as DocumentPicker from 'expo-document-picker';
 import Colors from '@/constants/colors';
 import { useCredits } from '@/providers/CreditsProvider';
 import { useReports } from '@/providers/ReportsProvider';
-import { processVerification, generateReportTitle, uploadFile, AuthenticationError } from '@/lib/verificationEngine';
+import {
+  processVerification,
+  generateReportTitle,
+  uploadFile,
+  AuthenticationError,
+} from '@/lib/verificationEngine';
 import { parseError } from '@/lib/errorHandler';
 import VerifyConfirmModal from '@/components/VerifyConfirmModal';
 
@@ -156,7 +161,7 @@ export default function VerifyScreen() {
   const [errorMessage, setErrorMessage] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [scanResult, setScanResult] = useState<{ totalClaims: number; groupedClaims: number; uniqueClaims: number } | null>(null);
-  const [scannedClaims, setScannedClaims] = useState<string[]>([]); // claims from /api/scan
+  const [scannedClaims, setScannedClaims] = useState<string[]>([]);
   const [extractedText, setExtractedText] = useState('');
   const [pendingReportId, setPendingReportId] = useState<string | null>(null);
 
@@ -192,7 +197,6 @@ export default function VerifyScreen() {
     return file !== null;
   };
 
-  // Step 1: Scan — extract + group claims, show modal
   const handleScan = async () => {
     Keyboard.dismiss();
     if (!canSubmit()) return;
@@ -201,12 +205,32 @@ export default function VerifyScreen() {
     setProgress(0);
 
     try {
-      const content = mode === 'text' ? text : mode === 'url' ? url : file?.name ?? '';
+      const content =
+        mode === 'text' ? text :
+        mode === 'url' ? url :
+        file ? `[File] ${file.name}` : '';
+
       const title = generateReportTitle(content, mode);
-      const reportId = await createReport(title, content, mode,
-        mode === 'url' ? url : undefined,
-        mode === 'pdf' ? file?.name : undefined
-      );
+
+      // Create report (NO local fallback anymore)
+      let reportId: string;
+      try {
+        reportId = await createReport(
+          title,
+          content,
+          mode,
+          mode === 'url' ? url : undefined,
+          mode === 'pdf' ? file?.name : undefined
+        );
+      } catch (e: any) {
+        const { message } = parseError(e);
+        setErrorMessage(message || 'Failed to create report. Please try again.');
+        setPhase('idle');
+        setProgress(0);
+        if (e instanceof AuthenticationError) router.replace('/login');
+        return;
+      }
+
       setPendingReportId(reportId);
 
       // Progress animation for scan
@@ -237,7 +261,6 @@ export default function VerifyScreen() {
         const { scanContent } = await import('@/lib/verificationEngine');
         scanRaw = await scanContent(textToScan, MAX_CLAIMS);
       } catch (scanErr: any) {
-        // Auth errors must propagate — do not fall back silently
         if (scanErr instanceof AuthenticationError) {
           throw scanErr;
         }
@@ -262,7 +285,6 @@ export default function VerifyScreen() {
       setProgress(100);
       setCurrentStep('Done!');
 
-      // Save claims for use in verify step
       setScannedClaims(scanData.claims);
       setScanResult({
         totalClaims: scanData.total_claims,
@@ -280,10 +302,10 @@ export default function VerifyScreen() {
       setErrorMessage(message);
       setPhase('idle');
       setProgress(0);
+      if (e instanceof AuthenticationError) router.replace('/login');
     }
   };
 
-  // Step 2: Verify — after user picks how many claims
   const handleVerify = async (maxClaims: number) => {
     setShowModal(false);
     if (!hasEnoughCredits(maxClaims)) {
@@ -297,6 +319,7 @@ export default function VerifyScreen() {
 
     try {
       await updateReport(pendingReportId, { status: 'processing' });
+
       const verifySteps = [
         'Extracting claims from content...',
         'Searching authoritative sources...',
@@ -327,6 +350,7 @@ export default function VerifyScreen() {
       setErrorMessage(message);
       setPhase('idle');
       setProgress(0);
+      if (e instanceof AuthenticationError) router.replace('/login');
     }
   };
 
@@ -457,7 +481,6 @@ export default function VerifyScreen() {
         <View style={{ height: 24 }} />
       </ScrollView>
 
-      {/* Confirm Modal */}
       <VerifyConfirmModal
         visible={showModal}
         scanResult={scanResult}
