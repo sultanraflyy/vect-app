@@ -126,11 +126,11 @@ export const Card = ({
 
 const cardStyles = StyleSheet.create({
   card: {
-    borderRadius: 18,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 10,
-    elevation: 3,
+    borderRadius: 16,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
 });
 
@@ -199,7 +199,7 @@ const barStyles = StyleSheet.create({
   track: {
     height: 4,
     borderRadius: 2,
-    backgroundColor: 'rgba(0,0,0,0.06)',
+    backgroundColor: 'rgba(15,23,42,0.06)',
     overflow: 'hidden',
   },
   fill: {

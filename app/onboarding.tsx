@@ -168,37 +168,38 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
   },
-  skipText: { fontSize: 15, fontWeight: '500' },
+  skipText: { fontSize: 14, fontWeight: '500' },
 
   content: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 32,
-    gap: 32,
+    gap: 36,
   },
 
   iconContainer: {
-    width: 120,
-    height: 120,
-    borderRadius: 36,
+    width: 112,
+    height: 112,
+    borderRadius: 32,
     alignItems: 'center',
     justifyContent: 'center',
   },
 
-  textBlock: { alignItems: 'center', gap: 16 },
+  textBlock: { alignItems: 'center', gap: 14 },
   title: {
-    fontSize: 40,
+    fontSize: 38,
     fontWeight: '800',
     letterSpacing: -1.5,
     textAlign: 'center',
-    lineHeight: 46,
+    lineHeight: 44,
   },
   subtitle: {
-    fontSize: 17,
-    lineHeight: 26,
+    fontSize: 16,
+    lineHeight: 25,
     textAlign: 'center',
     fontWeight: '400',
+    maxWidth: 280,
   },
 
   bottom: {
@@ -220,23 +221,23 @@ const styles = StyleSheet.create({
 
   btn: {
     width: '100%',
-    height: 56,
-    borderRadius: 18,
+    height: 54,
+    borderRadius: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: 8,
     shadowColor: '#0284C7',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 5,
   },
   btnText: {
     color: '#fff',
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '700',
-    letterSpacing: -0.3,
+    letterSpacing: -0.2,
   },
 
   freeNote: {

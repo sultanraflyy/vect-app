@@ -90,7 +90,7 @@ export default function SplashScreen() {
 
   return (
     <Animated.View style={[styles.screen, { opacity: screenOpacity }]}>
-      <StatusBar barStyle="light-content" backgroundColor="#0A1628" />
+      <StatusBar barStyle="light-content" backgroundColor="#0A0F1C" />
       <Animated.View style={ringStyle(ring1, 500)} />
       <Animated.View style={ringStyle(ring2, 380)} />
       <Animated.View style={ringStyle(ring3, 260)} />
@@ -122,12 +122,12 @@ export default function SplashScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#0A1628', alignItems: 'center', justifyContent: 'center', gap: 20 },
+  screen: { flex: 1, backgroundColor: '#0A0F1C', alignItems: 'center', justifyContent: 'center', gap: 20 },
   iconWrap: { alignItems: 'center', justifyContent: 'center', marginBottom: 8 },
   shieldOuter: {
-    width: 100, height: 114, backgroundColor: 'rgba(2,132,199,0.12)',
-    borderRadius: 20, borderBottomLeftRadius: 50, borderBottomRightRadius: 50,
-    borderWidth: 2, borderColor: '#0284C7', alignItems: 'center', justifyContent: 'center',
+    width: 100, height: 114, backgroundColor: 'rgba(2,132,199,0.1)',
+    borderRadius: 22, borderBottomLeftRadius: 50, borderBottomRightRadius: 50,
+    borderWidth: 1.5, borderColor: '#0284C7', alignItems: 'center', justifyContent: 'center',
   },
   checkWrap: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   checkLine1: {
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     position: 'absolute', width: 26, height: 3, backgroundColor: '#fff', borderRadius: 2,
     bottom: 16, right: 2, transform: [{ rotate: '-50deg' }, { translateX: -2 }],
   },
-  title: { fontSize: 56, fontWeight: '600', color: '#fff', letterSpacing: 10, fontStyle: 'italic' },
+  title: { fontSize: 56, fontWeight: '600', color: '#F8FAFC', letterSpacing: 10, fontStyle: 'italic' },
   tagline: { fontSize: 11, fontWeight: '500', color: '#38BDF8', letterSpacing: 5 },
   dots: { position: 'absolute', bottom: 80, flexDirection: 'row', gap: 8 },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#0284C7' },

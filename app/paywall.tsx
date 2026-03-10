@@ -12,8 +12,8 @@ import {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const NAVY = '#0A1628';
-const NAVY2 = '#0F1F3D';
+const NAVY = '#0A0F1C';
+const NAVY2 = '#111827';
 const BLUE = '#0284C7';
 const BLUE_LIGHT = 'rgba(2,132,199,0.12)';
 const BLUE_GLOW = 'rgba(2,132,199,0.06)';
