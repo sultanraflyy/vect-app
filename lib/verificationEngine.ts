@@ -1,6 +1,16 @@
 import { fetchWithTimeout } from './errorHandler';
+import { supabase } from './supabase';
 
 const BASE_URL = 'https://web-production-79c0c.up.railway.app';
+
+async function getAuthHeaders(): Promise<Record<string, string>> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session?.access_token) {
+    return { Authorization: `Bearer ${session.access_token}` };
+  }
+  console.warn('getAuthHeaders: no active session found; request will be sent without Authorization header');
+  return {};
+}
 
 export function generateReportTitle(content: string, inputType: string): string {
   if (inputType === 'url') {
@@ -54,11 +64,12 @@ export async function scanContent(
 }> {
   let response: Response;
   try {
+    const authHeaders = await getAuthHeaders();
     response = await fetchWithTimeout(
       `${BASE_URL}/api/scan`,
       {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders },
         body: JSON.stringify({ text, max_claims: maxClaims }),
       },
       30000
@@ -101,13 +112,14 @@ export async function processVerification(
   }, 1500);
 
   try {
+    const authHeaders = await getAuthHeaders();
     let response: Response;
     try {
       response = await fetchWithTimeout(
         `${BASE_URL}/api/verify`,
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...authHeaders },
           body: JSON.stringify({
             text: content,
             input_type: inputType,
