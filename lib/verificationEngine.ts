@@ -3,13 +3,50 @@ import { supabase } from './supabase';
 
 const BASE_URL = 'https://web-production-79c0c.up.railway.app';
 
+// Typed sentinel for authentication failures so callers can instanceof-check
+// rather than rely on fragile error-message string matching.
+export class AuthenticationError extends Error {
+  constructor(message = 'Not authenticated. Please log in again.') {
+    super(message);
+    this.name = 'AuthenticationError';
+  }
+}
+
+// Cache the session access_token so it is always available when API calls fire.
+// Supabase's async-storage initialization on React Native can mean getSession()
+// returns null on the very first call even though a persisted session exists.
+// Listening to onAuthStateChange (which fires on INITIAL_SESSION, SIGNED_IN,
+// TOKEN_REFRESHED, and SIGNED_OUT) keeps this cache reliably up-to-date for
+// the full lifetime of the app.
+//
+// NOTE: The subscription is intentionally not unsubscribed because
+// verificationEngine is a module-level singleton that lives for the entire
+// app lifetime.
+let _accessToken: string | null = null;
+
+supabase.auth.getSession()
+  .then(({ data: { session } }) => {
+    _accessToken = session?.access_token ?? null;
+  })
+  .catch(() => {
+    // Initialization failure — the per-call fallback in getAuthHeaders will retry
+  });
+
+supabase.auth.onAuthStateChange((_event, session) => {
+  _accessToken = session?.access_token ?? null;
+});
+
 async function getAuthHeaders(): Promise<Record<string, string>> {
+  if (_accessToken) {
+    return { Authorization: `Bearer ${_accessToken}` };
+  }
+  // Fallback for the rare case the cache hasn't been populated yet
   const { data: { session } } = await supabase.auth.getSession();
   if (session?.access_token) {
+    _accessToken = session.access_token;
     return { Authorization: `Bearer ${session.access_token}` };
   }
-  console.warn('getAuthHeaders: no active session found; request will be sent without Authorization header');
-  return {};
+  throw new AuthenticationError();
 }
 
 export function generateReportTitle(content: string, inputType: string): string {
