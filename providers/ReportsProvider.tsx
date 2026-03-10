@@ -43,8 +43,12 @@ export function ReportsProvider({ children }: { children: ReactNode }) {
         claims: r.claims || [],
       }));
       setReports(mapped);
-    } catch (e) {
-      console.log('Failed to fetch reports:', e);
+    }   } catch (e) {
+    // IMPORTANT:
+    // Do not create "local-*" reports because they are not persisted and will
+    // become "Report not found" on refresh / deep link.
+    throw e;
+
     } finally {
       setIsLoading(false);
     }
