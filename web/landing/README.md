@@ -6,11 +6,21 @@ This folder contains the **Vect** marketing landing page — a fully self-contai
 
 ```
 web/landing/
-├── index.html   ← complete single-file landing page (HTML + Tailwind CDN + vanilla JS)
+├── index.html   ← complete single-file landing page (HTML + Tailwind CDN + GSAP + vanilla JS)
 └── README.md    ← this file
 ```
 
-The page is **zero-dependency** — it loads Tailwind CSS from the CDN and Google Fonts at runtime. No build step, no `npm install`, nothing to compile.
+The page is **zero-dependency** — it loads Tailwind CSS, GSAP (with ScrollTrigger), and Google Fonts from CDNs at runtime. No build step, no `npm install`, nothing to compile.
+
+---
+
+## Design
+
+Light, clean, enterprise-grade aesthetic inspired by cohere.com. Key design choices:
+
+- **Fonts**: Inter (body), Instrument Serif (headlines), JetBrains Mono (data/numbers)
+- **Animations**: GSAP-powered hero entrance, ScrollTrigger scroll reveals, animated stat counters
+- **Layout**: Navbar → Hero with demo flow card → Alternating feature cards → Social proof marquee → Stats bar → Industries grid → 4-column pricing with toggle → FAQ accordion → CTA footer
 
 ---
 
@@ -52,14 +62,12 @@ Drop the `web/landing/` folder onto [app.netlify.com/drop](https://app.netlify.c
 
 ## Updating pricing
 
-All pricing data is inline in `index.html`. Search for the following comments to locate each section:
+All pricing data is inline in `index.html`. The pricing toggle uses `data-price-monthly` and `data-price-annual` attributes.
 
 | Section | What to change |
 |---------|---------------|
-| **Plan prices** | Find `$14.99` / `$149` and update the `<span>` text |
-| **Plan credits** | Find `1,500 standard` etc. in the feature lists |
-| **Top-Up bundles** | Find the `<!-- Standard credits -->` and `<!-- Deep credits -->` blocks |
-| **LemonSqueezy URLs** | Search for `lemonsqueezy.com/checkout/` and update slugs |
+| **Plan prices** | Find `data-price-monthly` / `data-price-annual` attributes |
+| **Plan credits** | Find credit counts in the feature `<ul>` lists |
 | **Contact email** | Search for `hello@vect.app` |
 
 ---
@@ -68,14 +76,14 @@ All pricing data is inline in `index.html`. Search for the following comments to
 
 | Token | Hex |
 |-------|-----|
-| Navy background | `#0A1628` |
-| Navy card | `#0F1F3D` |
-| Blue accent | `#0284C7` |
-| Sky text | `#38BDF8` |
-| Gold (Business) | `#F59E0B` |
+| Primary text | `#0F172A` |
+| Secondary text | `#1E293B` |
+| Muted text | `#64748B` |
+| Accent blue | `#2563EB` |
 | Success green | `#10B981` |
-| Light text | `#F1F5F9` |
-| Muted text | `#94A3B8` |
+| Warning amber | `#F59E0B` |
+| Border | `#E2E8F0` |
+| Surface | `#F8FAFC` |
 
 ---
 
