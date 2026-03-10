@@ -117,7 +117,7 @@ const StatCard = ({
   const C = Colors[scheme];
 
   return (
-    <View style={[styles.statCard, { backgroundColor: C.card }]}>
+    <View style={[styles.statCard, { backgroundColor: C.card, borderColor: C.border }]}>
       <View style={[styles.statIconWrap, { backgroundColor: bgColor }]}>
         <Icon size={18} color={color} strokeWidth={2} />
       </View>
@@ -253,7 +253,7 @@ const AverageScoreCard = ({ score, count }: { score: number; count: number }) =>
   const color = score >= 80 ? C.success : score >= 50 ? C.warning : C.error;
 
   return (
-    <View style={[styles.scoreCard, { backgroundColor: C.card }]}>
+    <View style={[styles.scoreCard, { backgroundColor: C.card, borderColor: C.border }]}>
       <View style={styles.scoreCardLeft}>
         <View style={[styles.scoreCardIcon, { backgroundColor: C.tintLight }]}>
           <Shield size={16} color={C.tint} strokeWidth={2} />
@@ -278,7 +278,7 @@ const EmptyState = ({ onAction }: { onAction: () => void }) => {
   const C = Colors[scheme];
 
   return (
-    <View style={[styles.emptyWrap, { backgroundColor: C.card }]}>
+    <View style={[styles.emptyWrap, { backgroundColor: C.card, borderColor: C.border }]}>
       <View style={[styles.emptyIcon, { backgroundColor: C.tintLight }]}>
         <Shield size={28} color={C.tint} strokeWidth={1.5} />
       </View>
@@ -437,7 +437,7 @@ export default function DashboardScreen() {
           {reports.length === 0 ? (
             <EmptyState onAction={() => router.push('/verify')} />
           ) : (
-            <View style={[styles.reportList, { backgroundColor: C.card }]}>
+            <View style={[styles.reportList, { backgroundColor: C.card, borderColor: C.border }]}>
               {reports.slice(0, 12).map((r, i) => (
                 <ReportRow
                   key={r.id}
@@ -474,14 +474,14 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   headerTitle: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: '800',
-    letterSpacing: -0.8,
+    letterSpacing: -0.6,
   },
   headerSub: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '500',
-    letterSpacing: 0.1,
+    letterSpacing: 0.2,
     marginTop: 1,
   },
   headerRight: {
@@ -493,8 +493,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    paddingHorizontal: 11,
-    paddingVertical: 7,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     borderRadius: 100,
   },
   creditText: {
@@ -511,92 +511,94 @@ const styles = StyleSheet.create({
 
   // Score card
   scoreCard: {
-    borderRadius: 18,
+    borderRadius: 16,
     padding: 18,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 10,
-    elevation: 3,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+    borderWidth: 1,
   },
   scoreCardLeft: {
     flex: 1,
     gap: 3,
   },
   scoreCardIcon: {
-    width: 30,
-    height: 30,
-    borderRadius: 9,
+    width: 28,
+    height: 28,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 6,
   },
   scoreCardTitle: {
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '600',
-    letterSpacing: 0.1,
+    letterSpacing: 0.2,
   },
   scoreCardValue: {
-    fontSize: 34,
+    fontSize: 32,
     fontWeight: '800',
     letterSpacing: -1,
-    lineHeight: 40,
+    lineHeight: 38,
   },
   scoreCardSub: {
     fontSize: 12,
-    fontWeight: '500',
+    fontWeight: '400',
     letterSpacing: 0.1,
   },
 
   // Stats
   statsRow: {
     flexDirection: 'row',
-    gap: 10,
+    gap: 8,
   },
   statCard: {
     flex: 1,
-    borderRadius: 16,
+    borderRadius: 14,
     padding: 14,
     alignItems: 'flex-start',
     gap: 6,
-    shadowColor: '#000',
+    shadowColor: '#0F172A',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 2,
+    shadowRadius: 4,
+    elevation: 1,
+    borderWidth: 1,
   },
   statIconWrap: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
+    width: 34,
+    height: 34,
+    borderRadius: 9,
     alignItems: 'center',
     justifyContent: 'center',
   },
   statValue: {
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '800',
     letterSpacing: -0.5,
   },
   statLabel: {
     fontSize: 11,
-    fontWeight: '600',
+    fontWeight: '500',
     letterSpacing: 0.1,
   },
 
   // Quick action
   quickAction: {
-    borderRadius: 16,
+    borderRadius: 14,
     padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     shadowColor: '#0284C7',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.18,
+    shadowRadius: 10,
     elevation: 4,
   },
   quickActionLeft: {
@@ -606,7 +608,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   quickActionTitle: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '700',
     color: '#fff',
     letterSpacing: -0.2,
@@ -619,7 +621,7 @@ const styles = StyleSheet.create({
 
   // Section
   section: {
-    gap: 10,
+    gap: 8,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -628,7 +630,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 2,
   },
   sectionTitle: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '700',
     letterSpacing: -0.3,
   },
@@ -639,32 +641,33 @@ const styles = StyleSheet.create({
 
   // Report list
   reportList: {
-    borderRadius: 18,
+    borderRadius: 16,
     overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 10,
-    elevation: 2,
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 1,
+    borderWidth: 1,
   },
   reportRow: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: 13,
     gap: 12,
   },
   reportIcon: {
-    width: 38,
-    height: 38,
-    borderRadius: 11,
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
   },
   reportInfo: {
     flex: 1,
-    gap: 3,
+    gap: 2,
   },
   reportTitle: {
     fontSize: 14,
@@ -673,15 +676,15 @@ const styles = StyleSheet.create({
   },
   reportMeta: {
     fontSize: 12,
-    fontWeight: '500',
+    fontWeight: '400',
   },
   reportTrailing: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 4,
   },
   reportScore: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '700',
     letterSpacing: -0.3,
   },
@@ -694,21 +697,22 @@ const styles = StyleSheet.create({
 
   // Empty
   emptyWrap: {
-    borderRadius: 18,
+    borderRadius: 16,
     padding: 28,
     alignItems: 'center',
     gap: 8,
+    borderWidth: 1,
   },
   emptyIcon: {
-    width: 60,
-    height: 60,
-    borderRadius: 18,
+    width: 56,
+    height: 56,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 4,
   },
   emptyTitle: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: '700',
     letterSpacing: -0.3,
   },
@@ -722,13 +726,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 7,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 12,
+    paddingHorizontal: 18,
+    paddingVertical: 11,
+    borderRadius: 10,
     marginTop: 8,
   },
   emptyBtnText: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '700',
     color: '#fff',
   },

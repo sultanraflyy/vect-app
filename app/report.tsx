@@ -103,7 +103,7 @@ Verified by Vect — Truth Infrastructure`;
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
 
         {/* Trust Score Card */}
-        <View style={[styles.scoreCard, { backgroundColor: C.card }]}>
+        <View style={[styles.scoreCard, { backgroundColor: C.card, borderColor: C.border }]}>
           <Text style={[styles.reportTitle, { color: C.text }]} numberOfLines={2}>
             {report.title}
           </Text>
@@ -147,7 +147,7 @@ Verified by Vect — Truth Infrastructure`;
           Claims ({report.claims.length})
         </Text>
 
-        <View style={[styles.claimsList, { backgroundColor: C.card }]}>
+        <View style={[styles.claimsList, { backgroundColor: C.card, borderColor: C.border }]}>
           {report.claims.map((claim, i) => (
             <View
               key={claim.id}
@@ -237,35 +237,36 @@ const styles = StyleSheet.create({
   },
   backBtn: { width: 40, height: 40, alignItems: 'flex-start', justifyContent: 'center' },
   shareBtn: { width: 40, height: 40, alignItems: 'flex-end', justifyContent: 'center' },
-  headerTitle: { fontSize: 16, fontWeight: '700', flex: 1, textAlign: 'center' },
+  headerTitle: { fontSize: 15, fontWeight: '700', flex: 1, textAlign: 'center' },
 
-  scroll: { padding: 16, gap: 16 },
+  scroll: { padding: 16, gap: 14 },
 
   scoreCard: {
-    borderRadius: 18, padding: 20,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06, shadowRadius: 10, elevation: 3,
-    gap: 12,
+    borderRadius: 16, padding: 18,
+    shadowColor: '#0F172A', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05, shadowRadius: 8, elevation: 2,
+    gap: 12, borderWidth: 1,
   },
-  reportTitle: { fontSize: 17, fontWeight: '700', letterSpacing: -0.3, lineHeight: 24 },
+  reportTitle: { fontSize: 16, fontWeight: '700', letterSpacing: -0.3, lineHeight: 22 },
   scoreRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  scoreLabel: { fontSize: 12, fontWeight: '500', marginBottom: 2 },
-  scoreValue: { fontSize: 42, fontWeight: '800', letterSpacing: -1 },
+  scoreLabel: { fontSize: 11, fontWeight: '500', marginBottom: 2 },
+  scoreValue: { fontSize: 40, fontWeight: '800', letterSpacing: -1 },
   statsRight: { gap: 6, alignItems: 'flex-end' },
   statBadge: {
     flexDirection: 'row', alignItems: 'center', gap: 5,
     paddingHorizontal: 10, paddingVertical: 5, borderRadius: 100,
   },
   statBadgeText: { fontSize: 12, fontWeight: '600' },
-  trustTrack: { height: 6, borderRadius: 3, overflow: 'hidden' },
+  trustTrack: { height: 5, borderRadius: 3, overflow: 'hidden' },
   trustFill: { height: '100%', borderRadius: 3 },
 
-  sectionTitle: { fontSize: 17, fontWeight: '700', letterSpacing: -0.3, paddingHorizontal: 2 },
+  sectionTitle: { fontSize: 16, fontWeight: '700', letterSpacing: -0.3, paddingHorizontal: 2 },
 
   claimsList: {
-    borderRadius: 18, overflow: 'hidden',
-    shadowColor: '#000', shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05, shadowRadius: 10, elevation: 2,
+    borderRadius: 16, overflow: 'hidden',
+    shadowColor: '#0F172A', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04, shadowRadius: 6, elevation: 1,
+    borderWidth: 1,
   },
   claimItem: { padding: 16, gap: 10 },
   claimStatus: {

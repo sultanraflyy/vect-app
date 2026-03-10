@@ -66,6 +66,6 @@ export default function TabLayout() {
 }
 
 const styles = StyleSheet.create({
-  iconWrapper: { width: 40, height: 32, alignItems: 'center', justifyContent: 'center', borderRadius: 10 },
-  tabLabel: { fontSize: 11, fontWeight: '600', letterSpacing: 0.1 },
+  iconWrapper: { width: 40, height: 32, alignItems: 'center', justifyContent: 'center', borderRadius: 8 },
+  tabLabel: { fontSize: 10, fontWeight: '600', letterSpacing: 0.2 },
 });

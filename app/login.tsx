@@ -75,7 +75,7 @@ export default function LoginScreen() {
         </View>
 
         {/* Card */}
-        <View style={[styles.card, { backgroundColor: C.card }]}>
+        <View style={[styles.card, { backgroundColor: C.card, borderColor: C.border }]}>
           {/* Mode toggle */}
           <View style={[styles.toggle, { backgroundColor: C.surface }]}>
             {(['login', 'signup'] as const).map(m => (
@@ -201,13 +201,13 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  scroll: { paddingHorizontal: 24, gap: 24 },
+  scroll: { paddingHorizontal: 24, gap: 28 },
 
-  logoArea: { alignItems: 'center', gap: 12, paddingVertical: 8 },
+  logoArea: { alignItems: 'center', gap: 10, paddingVertical: 8 },
   shieldWrap: {
     width: 64, height: 72,
-    borderRadius: 14, borderBottomLeftRadius: 32, borderBottomRightRadius: 32,
-    borderWidth: 2, alignItems: 'center', justifyContent: 'center',
+    borderRadius: 16, borderBottomLeftRadius: 32, borderBottomRightRadius: 32,
+    borderWidth: 1.5, alignItems: 'center', justifyContent: 'center',
   },
   checkLine1: {
     position: 'absolute', width: 10, height: 2.5,
@@ -221,40 +221,41 @@ const styles = StyleSheet.create({
     bottom: 26, right: 10,
     transform: [{ rotate: '-50deg' }],
   },
-  logoText: { fontSize: 32, fontWeight: '800', letterSpacing: 6 },
-  logoSub: { fontSize: 13, fontWeight: '500', letterSpacing: 2 },
+  logoText: { fontSize: 30, fontWeight: '800', letterSpacing: 6 },
+  logoSub: { fontSize: 12, fontWeight: '500', letterSpacing: 2.5 },
 
   card: {
-    borderRadius: 24, padding: 20, gap: 16,
-    shadowColor: '#000', shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.08, shadowRadius: 16, elevation: 4,
+    borderRadius: 20, padding: 20, gap: 16,
+    borderWidth: 1,
+    shadowColor: '#0F172A', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06, shadowRadius: 12, elevation: 3,
   },
 
   toggle: {
-    flexDirection: 'row', borderRadius: 12, padding: 4, gap: 4,
+    flexDirection: 'row', borderRadius: 10, padding: 3, gap: 3,
   },
   toggleBtn: {
-    flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: 'center',
+    flex: 1, paddingVertical: 9, borderRadius: 8, alignItems: 'center',
   },
   toggleText: { fontSize: 14, fontWeight: '600' },
 
-  fieldWrap: { gap: 8 },
-  label: { fontSize: 13, fontWeight: '600', letterSpacing: 0.2 },
+  fieldWrap: { gap: 6 },
+  label: { fontSize: 12, fontWeight: '600', letterSpacing: 0.3 },
   inputWrap: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
-    borderRadius: 14, borderWidth: StyleSheet.hairlineWidth,
-    paddingHorizontal: 14, paddingVertical: 14,
+    borderRadius: 12, borderWidth: 1,
+    paddingHorizontal: 14, paddingVertical: 13,
   },
   input: { flex: 1, fontSize: 15, fontWeight: '400' },
 
   btn: {
-    height: 54, borderRadius: 16,
+    height: 52, borderRadius: 14,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    shadowColor: '#0284C7', shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3, shadowRadius: 12, elevation: 6,
+    shadowColor: '#0284C7', shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.25, shadowRadius: 10, elevation: 5,
     marginTop: 4,
   },
-  btnText: { color: '#fff', fontSize: 16, fontWeight: '700', letterSpacing: -0.3 },
+  btnText: { color: '#fff', fontSize: 16, fontWeight: '700', letterSpacing: -0.2 },
   forgotText: { fontSize: 13, fontWeight: '500', textAlign: 'center' },
 
   securityNote: { alignItems: 'center', paddingHorizontal: 8 },
@@ -265,7 +266,7 @@ const styles = StyleSheet.create({
   dividerText: { fontSize: 12, fontWeight: '500' },
 
   googleBtn: {
-    height: 54, borderRadius: 16, borderWidth: StyleSheet.hairlineWidth,
+    height: 52, borderRadius: 14, borderWidth: 1,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
   },
   googleIcon: { fontSize: 18, fontWeight: '700', color: '#4285F4' },
