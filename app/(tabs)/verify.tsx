@@ -14,7 +14,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import Colors from '@/constants/colors';
 import { useCredits } from '@/providers/CreditsProvider';
 import { useReports } from '@/providers/ReportsProvider';
-import { processVerification, generateReportTitle, uploadFile } from '@/lib/verificationEngine';
+import { processVerification, generateReportTitle, uploadFile, AuthenticationError } from '@/lib/verificationEngine';
 import { parseError } from '@/lib/errorHandler';
 import VerifyConfirmModal from '@/components/VerifyConfirmModal';
 
@@ -236,7 +236,11 @@ export default function VerifyScreen() {
       try {
         const { scanContent } = await import('@/lib/verificationEngine');
         scanRaw = await scanContent(textToScan, MAX_CLAIMS);
-      } catch {
+      } catch (scanErr: any) {
+        // Auth errors must propagate — do not fall back silently
+        if (scanErr instanceof AuthenticationError) {
+          throw scanErr;
+        }
         // Fallback: estimate from text length if /api/scan not yet available
         const wordCount = textToScan.split(/\s+/).filter(Boolean).length;
         const estimatedUnique = Math.min(Math.max(Math.floor(wordCount / 25), 1), MAX_CLAIMS);
