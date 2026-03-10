@@ -31,7 +31,7 @@
       [
         "expo-router",
         {
-          "origin": "https://vect.app"
+          "origin": "https://app.vect.app"
         }
       ],
       [

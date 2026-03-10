@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity,
-  Dimensions, Animated, useColorScheme,
+  Dimensions, Animated, useColorScheme, Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -11,6 +11,14 @@ import Colors from '@/constants/colors';
 
 const { width } = Dimensions.get('window');
 const ONBOARDING_KEY = 'vect_onboarding_done';
+
+const setOnboardingDone = async () => {
+  if (Platform.OS === 'web') {
+    localStorage.setItem(ONBOARDING_KEY, 'true');
+  } else {
+    await AsyncStorage.setItem(ONBOARDING_KEY, 'true');
+  }
+};
 
 const slides = [
   {
@@ -72,7 +80,7 @@ export default function OnboardingScreen() {
 
   const handleNext = async () => {
     if (isLast) {
-      await AsyncStorage.setItem(ONBOARDING_KEY, 'true');
+      await setOnboardingDone();
       router.replace('/(tabs)');
     } else {
       animateToSlide(current + 1);
@@ -80,7 +88,7 @@ export default function OnboardingScreen() {
   };
 
   const handleSkip = async () => {
-    await AsyncStorage.setItem(ONBOARDING_KEY, 'true');
+    await setOnboardingDone();
     router.replace('/(tabs)');
   };
 

@@ -1,9 +1,21 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { Platform } from 'react-native';
 import { CreditBalance } from '@/types/vect';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const FREE_VERIFICATIONS = 150; // Free plan = 150 credits/month
 const STORAGE_KEY = 'vect_credits_used';
+
+const getItem = async (key: string): Promise<string | null> =>
+  Platform.OS === 'web' ? localStorage.getItem(key) : AsyncStorage.getItem(key);
+
+const setItem = async (key: string, val: string): Promise<void> => {
+  if (Platform.OS === 'web') {
+    localStorage.setItem(key, val);
+  } else {
+    await AsyncStorage.setItem(key, val);
+  }
+};
 
 export const CREDIT_COSTS = {
   text: 1,
@@ -30,7 +42,7 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
   });
 
   useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY).then(val => {
+    getItem(STORAGE_KEY).then(val => {
       if (val) setCreditsUsed(parseInt(val));
     });
   }, []);
@@ -44,7 +56,7 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
     if (!hasEnoughCredits(amount)) return false;
     const newUsed = creditsUsed + amount;
     setCreditsUsed(newUsed);
-    await AsyncStorage.setItem(STORAGE_KEY, newUsed.toString());
+    await setItem(STORAGE_KEY, newUsed.toString());
     return true;
   };
 

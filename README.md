@@ -1,50 +1,84 @@
-# Welcome to your Expo app 👋
+# Vect — Truth Infrastructure
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+AI-powered claim verification. Verify text, URLs, and PDFs and get a Trust Score in seconds.
 
-## Get started
+---
 
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Local development
 
 ```bash
-npm run reset-project
+npm install
+npx expo start          # opens Expo Go / dev menu
+npx expo start --web    # run as web app in browser
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+## Deploying to Vercel (web app — `app.vect.app`)
 
-To learn more about developing your project with Expo, look at the following resources:
+The `vercel.json` at the repo root configures the Expo web build. Follow these steps **once**:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### Step 1 — Create a new Vercel project
+1. Go to [vercel.com/new](https://vercel.com/new) and click **Add New Project**
+2. Import the **`sultanraflyy/vect-app`** repo
+3. Make sure **Root Directory** is set to `.` (the repo root, not `web/landing`)
+4. Vercel will auto-detect `vercel.json` — leave all build settings as-is
+5. Click **Deploy**
 
-## Join the community
+The first deploy URL will look like `vect-app-xxx.vercel.app`.
 
-Join our community of developers creating universal apps.
+### Step 2 — Add environment variable
+In your Vercel project → **Settings → Environment Variables**, add:
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+| Name | Value |
+|---|---|
+| `EXPO_PUBLIC_SUPABASE_URL` | `https://cthfnflyccdogaxsysxl.supabase.co` |
+| `EXPO_PUBLIC_SUPABASE_ANON_KEY` | *(your anon key)* |
+| `EXPO_PUBLIC_APP_URL` | `https://app.vect.app` |
+
+Then **redeploy** (Deployments → ⋯ → Redeploy).
+
+### Step 3 — Add custom domain `app.vect.app`
+1. In Vercel project → **Settings → Domains** → type `app.vect.app` → click **Add**
+2. Vercel shows the required DNS record. Add a **CNAME** at your DNS provider:
+   - **Name / Host**: `app`
+   - **Value / Target**: `cname.vercel-dns.com`
+3. Wait a few minutes for DNS to propagate — then `https://app.vect.app` is live ✅
+
+### Step 4 — Add Supabase redirect URL
+In [Supabase Dashboard](https://supabase.com/dashboard) → your project → **Authentication → URL Configuration**:
+- Add `https://app.vect.app/auth/callback` to **Redirect URLs**
+- Add `https://app.vect.app` to **Site URL** (or keep it as a redirect URL)
+
+### Step 5 — Enable Google OAuth (optional)
+In Supabase Dashboard → **Authentication → Providers → Google**:
+1. Enable Google provider
+2. Copy the **Callback URL** shown by Supabase
+3. Go to [Google Cloud Console](https://console.cloud.google.com) → APIs & Services → Credentials → Create OAuth 2.0 Client ID
+4. Add the Supabase callback URL as an **Authorized redirect URI**
+5. Paste **Client ID** and **Client Secret** back into Supabase
+
+---
+
+## Deploying the landing page (`vect.app`)
+
+The landing page lives in `web/landing/` and has its own `vercel.json`. Create a **second** Vercel project:
+
+1. [vercel.com/new](https://vercel.com/new) → import the same repo
+2. Set **Root Directory** to `web/landing`
+3. Deploy → add custom domain `vect.app`
+
+---
+
+## Project structure
+
+```
+app/              Expo Router screens (login, onboarding, tabs, etc.)
+components/       Reusable React Native components
+lib/              Supabase client, verification engine, error handling
+providers/        React context: Credits, Reports
+web/landing/      Static landing page (separate Vercel project)
+vercel.json       Expo web build config (for app.vect.app)
+.env.example      Required environment variables
+```
+
