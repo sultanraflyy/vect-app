@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import AuthGuard from '@/components/AuthGuard';
 import DashboardLayout from '@/components/DashboardLayout';
@@ -15,6 +16,8 @@ import {
   X,
   ChevronRight,
   ShieldCheck,
+  Zap,
+  SlidersHorizontal,
 } from 'lucide-react';
 import {
   generateReportTitle,
@@ -23,11 +26,11 @@ import {
   processVerification,
   uploadFile,
 } from '@/lib/api';
-import { useCredit, CREDIT_COSTS, hasEnoughCredits } from '@/lib/credits';
+import { useCredits, getCreditsLeft, hasEnoughCredits } from '@/lib/credits';
 import { supabase } from '@/lib/supabase';
 
 type InputMode = 'text' | 'url' | 'pdf';
-type Step = 'input' | 'scanning' | 'preview' | 'verifying' | 'done';
+type Step = 'input' | 'scanning' | 'confirm' | 'verifying' | 'done';
 
 function VerifyContent() {
   const router = useRouter();
@@ -38,13 +41,13 @@ function VerifyContent() {
   const [file, setFile] = useState<File | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [scanResult, setScanResult] = useState<any>(null);
+  const [maxClaims, setMaxClaims] = useState(50);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const inputType = mode;
-  const creditCost = CREDIT_COSTS[mode];
-  const enough = hasEnoughCredits(creditCost);
+  const creditsLeft = getCreditsLeft();
 
   const getContent = () => {
     if (mode === 'text') return text;
@@ -54,7 +57,6 @@ function VerifyContent() {
   };
 
   const canScan = () => {
-    if (!enough) return false;
     if (mode === 'text') return text.trim().length >= 20;
     if (mode === 'url') return url.trim().length > 0;
     if (mode === 'pdf') return file !== null;
@@ -74,8 +76,13 @@ function VerifyContent() {
         content = text;
       }
       const result = await scanContent(content, 50);
+      const uniqueCount = typeof result.unique_claims === 'number'
+        ? result.unique_claims
+        : (result.claims?.length || 0);
+      const defaultMax = Math.min(uniqueCount, 50);
+      setMaxClaims(Math.max(1, defaultMax));
       setScanResult({ ...result, resolvedContent: content });
-      setStep('preview');
+      setStep('confirm');
     } catch (e: any) {
       setError(e.message || 'Scan failed');
       setStep('input');
@@ -83,13 +90,21 @@ function VerifyContent() {
   };
 
   const handleVerify = async () => {
+    if (!hasEnoughCredits(maxClaims)) {
+      setError(`Not enough credits. You need ${maxClaims} credits but only have ${creditsLeft}.`);
+      return;
+    }
+
     setStep('verifying');
     setProgress(0);
     setError('');
 
     try {
       const content = scanResult?.resolvedContent || getContent();
-      const title = generateReportTitle(mode === 'pdf' ? (file?.name || '') : (mode === 'url' ? url : text), inputType);
+      const title = generateReportTitle(
+        mode === 'pdf' ? (file?.name || '') : (mode === 'url' ? url : text),
+        inputType
+      );
 
       // Create Supabase report record
       const { data: { user } } = await supabase.auth.getUser();
@@ -113,12 +128,15 @@ function VerifyContent() {
 
       if (reportError) throw reportError;
 
-      const claimTexts = (scanResult?.claims || []).map((c: any) => c.text || c);
+      const claimTexts = (scanResult?.claims || [])
+        .slice(0, maxClaims)
+        .map((c: any) => c.text || c);
+
       const { claims, creditsUsed } = await processVerification(
         content,
         setProgress,
         inputType,
-        50,
+        maxClaims,
         claimTexts.length > 0 ? claimTexts : undefined
       );
 
@@ -139,14 +157,14 @@ function VerifyContent() {
         })
         .eq('id', reportData.id);
 
-      // Deduct credits only after successful verification
-      useCredit(creditCost);
+      // Deduct the actual credits used (per-claim from backend)
+      useCredits(creditsUsed);
 
       setStep('done');
       setTimeout(() => router.push(`/report/${reportData.id}`), 1500);
     } catch (e: any) {
       setError(e.message || 'Verification failed');
-      setStep('preview');
+      setStep('confirm');
       setProgress(0);
     }
   };
@@ -173,6 +191,20 @@ function VerifyContent() {
     { id: 'pdf', label: 'PDF', icon: <FileUp className="w-4 h-4" /> },
   ];
 
+  // Confirm step computed values
+  const totalClaims = typeof scanResult?.total_claims === 'number'
+    ? scanResult.total_claims
+    : (scanResult?.claims?.length || 0);
+  const groupedClaims = typeof scanResult?.grouped_claims === 'number'
+    ? scanResult.grouped_claims
+    : totalClaims;
+  const uniqueClaims = typeof scanResult?.unique_claims === 'number'
+    ? scanResult.unique_claims
+    : (scanResult?.claims?.length || 0);
+  const sliderMax = Math.min(uniqueClaims, 50);
+  const creditsRequired = maxClaims;
+  const enoughForVerify = hasEnoughCredits(creditsRequired);
+
   return (
     <div className="p-4 sm:p-6 max-w-2xl mx-auto">
       {/* Header */}
@@ -183,9 +215,9 @@ function VerifyContent() {
 
       {/* Steps indicator */}
       <div className="flex items-center gap-2 mb-6 animate-fade-up">
-        {['Input', 'Scan', 'Preview', 'Verify'].map((s, i) => {
-          const stepIndex = ['input', 'scanning', 'preview', 'verifying'].indexOf(step);
-          const done = i < stepIndex;
+        {['Input', 'Scan', 'Confirm', 'Verify'].map((s, i) => {
+          const stepIndex = ['input', 'scanning', 'confirm', 'verifying'].indexOf(step);
+          const done = i < stepIndex || step === 'done';
           const active = i === stepIndex || (step === 'done' && i === 3);
           return (
             <div key={s} className="flex items-center gap-2">
@@ -196,7 +228,7 @@ function VerifyContent() {
                   active ? 'bg-blue-100 text-blue-600' :
                   done ? 'bg-green-100 text-green-600' : 'bg-slate-100 text-slate-400'
                 }`}>
-                  {done ? <CheckCircle className="w-3 h-3" /> : i + 1}
+                  {done && !active ? <CheckCircle className="w-3 h-3" /> : i + 1}
                 </div>
                 {s}
               </div>
@@ -210,7 +242,7 @@ function VerifyContent() {
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden animate-fade-up">
 
         {/* Input step */}
-        {(step === 'input') && (
+        {step === 'input' && (
           <div>
             {/* Tabs */}
             <div className="flex border-b border-slate-100">
@@ -333,9 +365,8 @@ function VerifyContent() {
 
               <div className="mt-5 flex items-center justify-between">
                 <div className="flex items-center gap-1.5 text-xs text-slate-500">
-                  <span>Cost:</span>
-                  <span className="font-semibold text-slate-700">{creditCost} credit{creditCost > 1 ? 's' : ''}</span>
-                  {!enough && <span className="text-red-500">(Not enough credits)</span>}
+                  <Zap className="w-3 h-3 text-amber-500" />
+                  <span>{creditsLeft} credits available</span>
                 </div>
                 <button
                   onClick={handleScan}
@@ -357,22 +388,84 @@ function VerifyContent() {
               <Loader2 className="w-7 h-7 text-blue-600 animate-spin" />
             </div>
             <h3 className="text-base font-semibold text-slate-900 mb-1">Scanning for claims…</h3>
-            <p className="text-sm text-slate-500">Extracting factual claims from your content</p>
+            <p className="text-sm text-slate-500">Extracting and grouping factual claims from your content</p>
           </div>
         )}
 
-        {/* Preview step */}
-        {step === 'preview' && scanResult && (
+        {/* Confirm step */}
+        {step === 'confirm' && scanResult && (
           <div>
             <div className="p-5 border-b border-slate-100">
-              <h3 className="text-base font-semibold text-slate-900 mb-1">Claims Found</h3>
-              <p className="text-sm text-slate-500">
-                Found <span className="font-semibold text-slate-700">{scanResult.claims?.length || 0}</span> claims to verify
-              </p>
+              <div className="flex items-center gap-2 mb-1">
+                <SlidersHorizontal className="w-4 h-4 text-blue-600" />
+                <h3 className="text-base font-semibold text-slate-900">Confirm Verification</h3>
+              </div>
+              <p className="text-sm text-slate-500">Review claims found and choose how many to verify</p>
             </div>
 
-            <div className="max-h-72 overflow-y-auto divide-y divide-slate-100">
-              {(scanResult.claims || []).map((claim: any, i: number) => (
+            {/* Stats row */}
+            <div className="grid grid-cols-3 gap-px bg-slate-100 border-b border-slate-100">
+              {[
+                { label: 'Total Claims', value: totalClaims },
+                { label: 'After Grouping', value: groupedClaims },
+                { label: 'Unique Claims', value: uniqueClaims },
+              ].map((s) => (
+                <div key={s.label} className="bg-white px-4 py-3 text-center">
+                  <p className="text-lg font-bold text-slate-900">{s.value}</p>
+                  <p className="text-xs text-slate-500">{s.label}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Slider */}
+            <div className="p-5 border-b border-slate-100">
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-sm font-medium text-slate-700">Claims to verify</label>
+                <span className="text-sm font-bold text-blue-600">{maxClaims}</span>
+              </div>
+              <input
+                type="range"
+                min={1}
+                max={Math.max(sliderMax, 1)}
+                value={maxClaims}
+                onChange={e => setMaxClaims(Number(e.target.value))}
+                className="w-full accent-blue-600"
+              />
+              <div className="flex justify-between text-xs text-slate-400 mt-1">
+                <span>1</span>
+                <span>{Math.max(sliderMax, 1)}</span>
+              </div>
+
+              {/* Credits required */}
+              <div className={`mt-4 flex items-center justify-between p-3 rounded-xl ${
+                enoughForVerify ? 'bg-blue-50 border border-blue-100' : 'bg-red-50 border border-red-200'
+              }`}>
+                <div className="flex items-center gap-2">
+                  <Zap className={`w-4 h-4 ${enoughForVerify ? 'text-blue-600' : 'text-red-500'}`} />
+                  <span className="text-sm font-medium text-slate-700">Credits required</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className={`text-sm font-bold ${enoughForVerify ? 'text-blue-600' : 'text-red-600'}`}>
+                    {creditsRequired}
+                  </span>
+                  <span className="text-xs text-slate-400">of {creditsLeft} left</span>
+                </div>
+              </div>
+
+              {!enoughForVerify && (
+                <div className="mt-2 flex items-center gap-2 text-sm text-red-600">
+                  <AlertTriangle className="w-4 h-4 shrink-0" />
+                  <span>Not enough credits. </span>
+                  <Link href="/paywall" className="font-medium underline hover:text-red-700">
+                    Upgrade plan →
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Claims preview */}
+            <div className="max-h-52 overflow-y-auto divide-y divide-slate-100">
+              {(scanResult.claims || []).slice(0, maxClaims).map((claim: any, i: number) => (
                 <div key={i} className="flex items-start gap-3 px-5 py-3">
                   <span className="w-5 h-5 rounded-full bg-slate-100 text-slate-500 text-xs flex items-center justify-center shrink-0 mt-0.5">
                     {i + 1}
@@ -397,14 +490,15 @@ function VerifyContent() {
                 onClick={() => setStep('input')}
                 className="px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
               >
-                ← Back
+                ← Cancel
               </button>
               <button
                 onClick={handleVerify}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition-all shadow-sm"
+                disabled={!enoughForVerify || maxClaims < 1}
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-sm"
               >
                 <ShieldCheck className="w-4 h-4" />
-                Verify All Claims
+                Verify Now
               </button>
             </div>
           </div>
@@ -455,3 +549,4 @@ export default function VerifyPage() {
     </AuthGuard>
   );
 }
+

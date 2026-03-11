@@ -1,11 +1,8 @@
+// Credits are per-claim, not per-input type
+// FREE plan = 150 credits/month
+// Credit tracking is localStorage-based for free users
 const FREE_CREDITS = 150;
 const STORAGE_KEY = 'vect_credits_used';
-
-export const CREDIT_COSTS = {
-  text: 1,
-  url: 2,
-  pdf: 3,
-} as const;
 
 export function getCreditsUsed(): number {
   if (typeof window === 'undefined') return 0;
@@ -21,7 +18,8 @@ export function getTotalCredits(): number {
   return FREE_CREDITS;
 }
 
-export function useCredit(amount: number): boolean {
+/** Deduct `amount` credits from localStorage. Returns true if successful. */
+export function useCredits(amount: number): boolean {
   const left = getCreditsLeft();
   if (left < amount) return false;
   const newUsed = getCreditsUsed() + amount;
@@ -29,6 +27,15 @@ export function useCredit(amount: number): boolean {
   return true;
 }
 
+/** Alias for backward compatibility */
+export const useCredit = useCredits;
+
 export function hasEnoughCredits(amount: number): boolean {
   return getCreditsLeft() >= amount;
+}
+
+export function resetCredits(): void {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem(STORAGE_KEY);
+  }
 }
