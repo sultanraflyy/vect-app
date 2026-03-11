@@ -11,6 +11,8 @@ import {
   LogOut,
   ChevronRight,
   Zap,
+  User,
+  Star,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { getCreditsLeft, getTotalCredits } from '@/lib/credits';
@@ -25,9 +27,11 @@ const navItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/reports', label: 'Reports', icon: FileText },
   { href: '/verify', label: 'Verify', icon: ShieldCheck },
+  { href: '/profile', label: 'Profile', icon: User },
 ];
 
 const settingsItems = [
+  { href: '/paywall', label: 'Upgrade', icon: Star },
   { href: '/api-keys', label: 'API Keys', icon: Key },
   { href: '/billing', label: 'Billing', icon: CreditCard },
 ];
