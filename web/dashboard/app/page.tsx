@@ -17,8 +17,12 @@ function DashboardContent() {
   const [creditsLeft, setCreditsLeft] = useState(0);
 
   useEffect(() => {
-    setCreditsLeft(getCreditsLeft());
-    fetchReports();
+    const initData = async () => {
+      const left = await getCreditsLeft();
+      setCreditsLeft(left);
+      fetchReports();
+    };
+    initData();
   }, []);
 
   const fetchReports = async () => {
