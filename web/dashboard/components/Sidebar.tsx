@@ -15,7 +15,7 @@ import {
   Star,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import { getCreditsLeft, getTotalCredits } from '@/lib/credits';
+import { getCreditsLeft, getTotalCredits, resetCredits } from '@/lib/credits';
 import { useEffect, useState } from 'react';
 
 interface SidebarProps {
@@ -43,10 +43,15 @@ export default function Sidebar({ userEmail, onClose }: SidebarProps) {
   const totalCredits = getTotalCredits();
 
   useEffect(() => {
-    setCreditsLeft(getCreditsLeft());
+    const fetchCredits = async () => {
+      const left = await getCreditsLeft();
+      setCreditsLeft(left);
+    };
+    fetchCredits();
   }, []);
 
   const handleSignOut = async () => {
+    resetCredits(); // Menghapus sisa cache (jika ada)
     await supabase.auth.signOut();
     router.replace('/login');
   };
