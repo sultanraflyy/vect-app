@@ -17,7 +17,11 @@ export default function Topbar({ title, onMenuClick, showNewVerification = true 
   const [creditsLeft, setCreditsLeft] = useState(0);
 
   useEffect(() => {
-    setCreditsLeft(getCreditsLeft());
+    const fetchCredits = async () => {
+      const left = await getCreditsLeft();
+      setCreditsLeft(left);
+    };
+    fetchCredits();
   }, []);
 
   const creditColor =
