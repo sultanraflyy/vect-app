@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import AuthGuard from '@/components/AuthGuard';
@@ -44,10 +44,18 @@ function VerifyContent() {
   const [maxClaims, setMaxClaims] = useState(50);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState('');
+  const [creditsLeft, setCreditsLeft] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const inputType = mode;
-  const creditsLeft = getCreditsLeft();
+
+  useEffect(() => {
+    const fetchCredits = async () => {
+      const left = await getCreditsLeft();
+      setCreditsLeft(left);
+    };
+    fetchCredits();
+  }, []);
 
   const getContent = () => {
     if (mode === 'text') return text;
@@ -90,7 +98,8 @@ function VerifyContent() {
   };
 
   const handleVerify = async () => {
-    if (!hasEnoughCredits(maxClaims)) {
+    const enough = await hasEnoughCredits(maxClaims);
+    if (!enough) {
       setError(`Not enough credits. You need ${maxClaims} credits but only have ${creditsLeft}.`);
       return;
     }
@@ -158,7 +167,7 @@ function VerifyContent() {
         .eq('id', reportData.id);
 
       // Deduct the actual credits used (per-claim from backend)
-      useCredits(creditsUsed);
+      await useCredits(creditsUsed);
 
       setStep('done');
       setTimeout(() => router.push(`/report/${reportData.id}`), 1500);
@@ -203,7 +212,7 @@ function VerifyContent() {
     : (scanResult?.claims?.length || 0);
   const sliderMax = Math.min(uniqueClaims, 50);
   const creditsRequired = maxClaims;
-  const enoughForVerify = hasEnoughCredits(creditsRequired);
+  const enoughForVerify = creditsLeft >= creditsRequired;
 
   return (
     <div className="p-4 sm:p-6 max-w-2xl mx-auto">
@@ -549,4 +558,3 @@ export default function VerifyPage() {
     </AuthGuard>
   );
 }
-
