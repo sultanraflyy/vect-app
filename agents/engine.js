@@ -310,7 +310,11 @@ secondary_keywords, word_count, estimated_read_time, published_date
 function archiveContent(channel, content, theme) {
   const repoRoot = path.resolve(__dirname, '..');
   const date = new Date().toISOString().split('T')[0];
-  const archivePath = config.archivePaths[channel] || config.archivePaths[channel.replace('-', '-')];
+  const archivePath = config.archivePaths[channel];
+  if (!archivePath) {
+    console.warn(`  ⚠ No archive path configured for channel: ${channel}`);
+    return null;
+  }
   const dirPath = path.join(repoRoot, archivePath);
 
   if (!fs.existsSync(dirPath)) {

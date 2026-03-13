@@ -100,7 +100,7 @@ const config = {
   archivePaths: {
     reddit: 'content/reddit',
     linkedin: 'content/linkedin',
-    'x-threads': 'content/x-threads',
+    'x-thread': 'content/x-threads',
     instagram: 'content/instagram',
     outreach: 'content/outreach',
     community: 'content/community',

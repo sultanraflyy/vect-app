@@ -65,6 +65,22 @@ This keeps Render.com services alive without using Make.com operations.
 3. Copy the webhook URL → save as `MAKECOM_WEBHOOK_URL` in GitHub secrets
 4. Add **Router** module with 3 routes:
 
+The webhook payload sent by the content engine has this structure:
+```json
+{
+  "linkedin_content": "Generated LinkedIn post text",
+  "instagram_content": "Generated Instagram caption",
+  "x_thread_content": "Generated X thread (tweets separated by newlines)",
+  "linkedin_profile_id": "Your Buffer LinkedIn profile ID",
+  "instagram_profile_id": "Your Buffer Instagram profile ID",
+  "typefully_api_key": "Your Typefully API key",
+  "scheduled_time": "ISO 8601 timestamp for scheduling"
+}
+```
+
+In Make.com, reference these values using `{{1.linkedin_content}}` etc.
+(where `1` refers to the Webhook module number).
+
 **Route A — Buffer (LinkedIn):**
 ```
 Router → HTTP Request
