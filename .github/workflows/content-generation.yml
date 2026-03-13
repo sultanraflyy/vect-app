@@ -88,6 +88,7 @@ jobs:
           else
             DATE=$(date +%Y-%m-%d)
             git commit -m "content: auto-generated weekly content ($DATE)"
+            git pull --rebase origin master
             git push
           fi
 
@@ -95,7 +96,6 @@ jobs:
         env:
           MAKECOM_WEBHOOK_URL: ${{ secrets.MAKECOM_WEBHOOK_URL }}
         run: |
-          # Bikin dummy payload sederhana biar Make.com bisa ngebaca strukturnya
           cat << 'EOF' > dummy-payload.json
           {
             "linkedin_ready": true,
