@@ -15,11 +15,14 @@ function DashboardContent() {
   const [reports, setReports] = useState<VerificationReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [creditsLeft, setCreditsLeft] = useState(0);
+  const [totalCredits, setTotalCredits] = useState(150);
 
   useEffect(() => {
     const initData = async () => {
       const left = await getCreditsLeft();
+      const total = await getTotalCredits();
       setCreditsLeft(left);
+      setTotalCredits(total);
       fetchReports();
     };
     initData();
@@ -66,7 +69,6 @@ function DashboardContent() {
     : 0;
   const totalVerified = reports.reduce((sum, r) => sum + (r.verifiedCount || 0), 0);
   const totalFlagged = reports.reduce((sum, r) => sum + (r.flaggedCount || 0), 0);
-  const totalCredits = getTotalCredits();
 
   return (
     <div className="p-4 sm:p-6 max-w-6xl mx-auto">
@@ -154,7 +156,6 @@ function DashboardContent() {
           </div>
         ) : (
           <div>
-            {/* Table header */}
             <div className="hidden sm:flex items-center gap-4 px-4 py-2 bg-slate-50 border-b border-slate-100 text-xs font-medium text-slate-500">
               <span className="w-20 shrink-0">Status</span>
               <span className="flex-1">Title</span>
