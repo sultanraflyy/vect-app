@@ -1,41 +1,58 @@
-// Credits are per-claim, not per-input type
-// FREE plan = 150 credits/month
-// Credit tracking is localStorage-based for free users
-const FREE_CREDITS = 150;
-const STORAGE_KEY = 'vect_credits_used';
+import { supabase } from './supabase';
 
-export function getCreditsUsed(): number {
-  if (typeof window === 'undefined') return 0;
-  const val = localStorage.getItem(STORAGE_KEY);
-  return val ? parseInt(val, 10) : 0;
+// Mengambil profil lengkap user
+export async function getUserProfile() {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) return { credits_used: 0, credits_limit: 150, tier: 'free' };
+
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('credits_used, credits_limit, tier')
+    .eq('id', session.user.id)
+    .single();
+
+  if (error || !data) return { credits_used: 0, credits_limit: 150, tier: 'free' };
+  return data;
 }
 
-export function getCreditsLeft(): number {
-  return Math.max(0, FREE_CREDITS - getCreditsUsed());
+export async function getCreditsUsed(): Promise<number> {
+  const profile = await getUserProfile();
+  return profile.credits_used;
 }
 
-export function getTotalCredits(): number {
-  return FREE_CREDITS;
+export async function getTotalCredits(): Promise<number> {
+  const profile = await getUserProfile();
+  return profile.credits_limit;
 }
 
-/** Deduct `amount` credits from localStorage. Returns true if successful. */
-export function useCredits(amount: number): boolean {
-  const left = getCreditsLeft();
+export async function getCreditsLeft(): Promise<number> {
+  const profile = await getUserProfile();
+  return Math.max(0, profile.credits_limit - profile.credits_used);
+}
+
+export async function useCredits(amount: number): Promise<boolean> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) return false;
+
+  const left = await getCreditsLeft();
   if (left < amount) return false;
-  const newUsed = getCreditsUsed() + amount;
-  localStorage.setItem(STORAGE_KEY, newUsed.toString());
+
+  const used = await getCreditsUsed();
+  
+  const { error } = await supabase
+    .from('profiles')
+    .update({ credits_used: used + amount })
+    .eq('id', session.user.id);
+
+  if (error) return false;
   return true;
 }
 
-/** Alias for backward compatibility */
 export const useCredit = useCredits;
 
-export function hasEnoughCredits(amount: number): boolean {
-  return getCreditsLeft() >= amount;
+export async function hasEnoughCredits(amount: number): Promise<boolean> {
+  const left = await getCreditsLeft();
+  return left >= amount;
 }
 
-export function resetCredits(): void {
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem(STORAGE_KEY);
-  }
-}
+export function resetCredits(): void {}
