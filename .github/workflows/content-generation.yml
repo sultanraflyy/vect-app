@@ -91,6 +91,29 @@ jobs:
             git push
           fi
 
+      - name: 🚀 Trigger Make.com Distribution
+        env:
+          MAKECOM_WEBHOOK_URL: ${{ secrets.MAKECOM_WEBHOOK_URL }}
+        run: |
+          # Bikin dummy payload sederhana biar Make.com bisa ngebaca strukturnya
+          cat << 'EOF' > dummy-payload.json
+          {
+            "linkedin_ready": true,
+            "linkedin_text": "Ini adalah contoh post LinkedIn dari Vect AI.",
+            "twitter_ready": true,
+            "twitter_text": "Ini adalah contoh tweet dari Vect AI.",
+            "instagram_ready": true,
+            "instagram_text": "Ini adalah contoh caption IG dari Vect AI.",
+            "outreach_ready": true,
+            "outreach_target": "CEO Startup",
+            "outreach_subject": "Tanya soal verifikasi data",
+            "outreach_body": "Halo, saya dari Vect..."
+          }
+          EOF
+          
+          echo "Sending payload to Make.com..."
+          curl -X POST -H "Content-Type: application/json" -d @dummy-payload.json $MAKECOM_WEBHOOK_URL
+
   notify-on-failure:
     needs: generate-content
     if: failure()
