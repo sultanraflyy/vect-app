@@ -22,14 +22,11 @@ function ProfileContent() {
   const [userEmail, setUserEmail] = useState('');
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ reports: 0, claims: 0 });
-  
-  // State untuk menyimpan kredit
   const [creditsLeft, setCreditsLeft] = useState(0);
   const [totalCredits, setTotalCredits] = useState(150); 
   const [toast, setToast] = useState('');
 
   useEffect(() => {
-    // Fungsi async untuk mengambil kredit
     const fetchCredits = async () => {
       const left = await getCreditsLeft();
       const total = await getTotalCredits();
@@ -75,42 +72,23 @@ function ProfileContent() {
   };
 
   const initial = userEmail ? userEmail[0].toUpperCase() : 'U';
-  // Mencegah pembagian dengan 0 saat data belum di-load
   const creditsPercent = totalCredits > 0 ? Math.round((creditsLeft / totalCredits) * 100) : 0;
 
   const menuItems = [
-    {
-      label: 'Notifications',
-      icon: Bell,
-      action: () => showToast('Coming Soon'),
-    },
-    {
-      label: 'Privacy & Security',
-      icon: Shield,
-      action: () => showToast('Coming Soon'),
-    },
-    {
-      label: 'My Reports',
-      icon: FileText,
-      action: () => router.push('/'),
-    },
-    {
-      label: 'Help & Support',
-      icon: HelpCircle,
-      action: () => showToast('Coming Soon'),
-    },
+    { label: 'Notifications', icon: Bell, action: () => showToast('Coming Soon') },
+    { label: 'Privacy & Security', icon: Shield, action: () => showToast('Coming Soon') },
+    { label: 'My Reports', icon: FileText, action: () => router.push('/') },
+    { label: 'Help & Support', icon: HelpCircle, action: () => showToast('Coming Soon') },
   ];
 
   return (
     <div className="p-4 sm:p-6 max-w-xl mx-auto">
-      {/* Toast */}
       {toast && (
         <div className="fixed top-4 right-4 z-50 bg-slate-800 text-white text-sm px-4 py-2.5 rounded-xl shadow-lg animate-fade-up">
           {toast}
         </div>
       )}
 
-      {/* Avatar card */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-4 flex items-center gap-4 animate-fade-up">
         <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shrink-0">
           <span className="text-white text-xl font-bold">{initial}</span>
@@ -126,7 +104,6 @@ function ProfileContent() {
         </div>
       </div>
 
-      {/* Stats row */}
       <div className="grid grid-cols-3 gap-3 mb-4 animate-fade-up">
         {[
           { label: 'Reports', value: loading ? '—' : stats.reports },
@@ -140,7 +117,6 @@ function ProfileContent() {
         ))}
       </div>
 
-      {/* Upgrade card */}
       <Link
         href="/paywall"
         className="flex items-center gap-4 bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-5 mb-4 text-white hover:from-blue-700 hover:to-blue-800 transition-all shadow-sm animate-fade-up"
@@ -152,7 +128,6 @@ function ProfileContent() {
         <ChevronRight className="w-5 h-5 text-blue-300 shrink-0" />
       </Link>
 
-      {/* Credits bar */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 mb-4 animate-fade-up">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-1.5">
@@ -175,7 +150,6 @@ function ProfileContent() {
         <p className="text-xs text-slate-400">150 standard credits/month on Free plan</p>
       </div>
 
-      {/* Settings section */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-4 animate-fade-up">
         <div className="px-4 py-3 border-b border-slate-100">
           <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">Settings</p>
@@ -193,7 +167,6 @@ function ProfileContent() {
         ))}
       </div>
 
-      {/* Log out */}
       <button
         onClick={handleSignOut}
         className="w-full flex items-center justify-center gap-2 py-3 text-sm font-medium text-red-500 hover:text-red-600 transition-colors animate-fade-up"
@@ -202,7 +175,6 @@ function ProfileContent() {
         Log Out
       </button>
 
-      {/* Footer */}
       <p className="text-center text-xs text-slate-400 mt-4 animate-fade-up">
         Vect v1.0.0 · Truth Infrastructure
       </p>
