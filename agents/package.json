@@ -1,0 +1,17 @@
+{
+  "name": "vect-content-engine",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Autonomous content generation engine for Vect",
+  "scripts": {
+    "generate": "node engine.js",
+    "generate:reddit": "node engine.js --channel reddit",
+    "generate:linkedin": "node engine.js --channel linkedin",
+    "generate:x-thread": "node engine.js --channel x-thread",
+    "generate:instagram": "node engine.js --channel instagram",
+    "generate:outreach": "node engine.js --channel outreach",
+    "generate:community": "node engine.js --channel community",
+    "generate:blog": "node engine.js --channel blog",
+    "detect-trends": "node trend-detector.js"
+  }
+}
