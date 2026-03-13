@@ -22,13 +22,22 @@ function ProfileContent() {
   const [userEmail, setUserEmail] = useState('');
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ reports: 0, claims: 0 });
+  
+  // State untuk menyimpan kredit
   const [creditsLeft, setCreditsLeft] = useState(0);
+  const [totalCredits, setTotalCredits] = useState(150); 
   const [toast, setToast] = useState('');
 
-  const totalCredits = getTotalCredits();
-
   useEffect(() => {
-    setCreditsLeft(getCreditsLeft());
+    // Fungsi async untuk mengambil kredit
+    const fetchCredits = async () => {
+      const left = await getCreditsLeft();
+      const total = await getTotalCredits();
+      setCreditsLeft(left);
+      setTotalCredits(total);
+    };
+
+    fetchCredits();
     loadProfile();
   }, []);
 
@@ -66,7 +75,8 @@ function ProfileContent() {
   };
 
   const initial = userEmail ? userEmail[0].toUpperCase() : 'U';
-  const creditsPercent = Math.round((creditsLeft / totalCredits) * 100);
+  // Mencegah pembagian dengan 0 saat data belum di-load
+  const creditsPercent = totalCredits > 0 ? Math.round((creditsLeft / totalCredits) * 100) : 0;
 
   const menuItems = [
     {
