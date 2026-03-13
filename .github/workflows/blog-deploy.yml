@@ -1,0 +1,41 @@
+name: Blog Auto-Deploy
+
+on:
+  push:
+    paths:
+      - 'web/blog/**'
+      - 'content/blog/**'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-blog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Validate blog posts
+        run: |
+          echo "Validating blog posts..."
+
+          # Check that all blog posts have frontmatter
+          for file in web/blog/posts/*.md; do
+            if [ -f "$file" ]; then
+              if ! head -1 "$file" | grep -q "^---"; then
+                echo "⚠ Missing frontmatter: $file"
+              else
+                echo "✓ Valid: $file"
+              fi
+            fi
+          done
+
+          echo ""
+          echo "Blog validation complete."
+          echo "Vercel will auto-deploy from this push."
+          echo "Blog URL: https://tryvect.com/blog"
+
+  # Note: Vercel auto-deploys on push to the connected branch.
+  # This workflow validates content before Vercel picks it up.
+  # No additional deploy step is needed — Vercel handles it.
