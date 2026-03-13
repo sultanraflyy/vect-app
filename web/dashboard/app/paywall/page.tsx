@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import AuthGuard from '@/components/AuthGuard';
 import DashboardLayout from '@/components/DashboardLayout';
+import { supabase } from '@/lib/supabase';
 import {
   Check,
   X,
@@ -45,7 +46,7 @@ const plans = [
     period: '/month',
     credits: '1,500 standard + 150 deep/mo',
     badge: 'MOST POPULAR',
-    checkoutUrl: 'https://vect.lemonsqueezy.com/checkout/pro',
+    checkoutUrl: 'https://vectapp.lemonsqueezy.com/checkout/buy/af545a44-fb71-4103-8b63-45d654101370',
     color: 'blue',
     features: [
       { label: 'Standard verifications', included: true },
@@ -65,7 +66,7 @@ const plans = [
     period: '/month',
     credits: '5,000 standard + 500 deep/mo',
     badge: null,
-    checkoutUrl: 'https://vect.lemonsqueezy.com/checkout/business',
+    checkoutUrl: 'https://vectapp.lemonsqueezy.com/checkout/buy/58765470-a57d-4803-8e79-7fcfcaeb2bb5',
     color: 'amber',
     features: [
       { label: 'Standard verifications', included: true },
@@ -97,6 +98,26 @@ const deepPacks = [
 
 function PaywallContent() {
   const [tab, setTab] = useState<'plans' | 'topup'>('plans');
+  const [userId, setUserId] = useState<string | null>(null);
+
+  // Ambil user ID saat halaman dimuat
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data?.user) setUserId(data.user.id);
+    });
+  }, []);
+
+  // Fungsi untuk handle checkout dinamis
+  const handleCheckout = (url: string | null) => {
+    if (!url) return;
+    if (!userId) {
+      alert("Please wait a moment while we load your account details, or try refreshing the page.");
+      return;
+    }
+    // Sisipkan ID user ke dalam URL Lemon Squeezy
+    const finalUrl = `${url}?checkout[custom][user_id]=${userId}`;
+    window.location.href = finalUrl;
+  };
 
   const planColors: Record<string, { ring: string; badge: string; cta: string; highlight: string }> = {
     slate: {
@@ -207,15 +228,13 @@ function PaywallContent() {
                     Current Plan
                   </div>
                 ) : (
-                  <a
-                    href={plan.checkoutUrl!}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    onClick={() => handleCheckout(plan.checkoutUrl)}
                     className={`flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-medium transition-colors ${colors.cta}`}
                   >
                     Get {plan.name}
                     <ChevronRight className="w-4 h-4" />
-                  </a>
+                  </button>
                 )}
               </div>
             );
@@ -235,12 +254,10 @@ function PaywallContent() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {standardPacks.map((pack, i) => (
-                <a
+                <button
                   key={i}
-                  href={pack.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-between bg-white border border-slate-200 rounded-xl p-4 hover:border-blue-300 hover:shadow-sm transition-all group"
+                  onClick={() => handleCheckout(pack.url)}
+                  className="w-full text-left flex items-center justify-between bg-white border border-slate-200 rounded-xl p-4 hover:border-blue-300 hover:shadow-sm transition-all group"
                 >
                   <div>
                     <p className="text-sm font-semibold text-slate-900">{pack.credits}</p>
@@ -250,7 +267,7 @@ function PaywallContent() {
                     <span className="text-sm font-bold text-blue-600">{pack.price}</span>
                     <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-blue-500 transition-colors" />
                   </div>
-                </a>
+                </button>
               ))}
             </div>
           </div>
@@ -264,12 +281,10 @@ function PaywallContent() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {deepPacks.map((pack, i) => (
-                <a
+                <button
                   key={i}
-                  href={pack.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-between bg-white border border-slate-200 rounded-xl p-4 hover:border-purple-300 hover:shadow-sm transition-all group"
+                  onClick={() => handleCheckout(pack.url)}
+                  className="w-full text-left flex items-center justify-between bg-white border border-slate-200 rounded-xl p-4 hover:border-purple-300 hover:shadow-sm transition-all group"
                 >
                   <div>
                     <p className="text-sm font-semibold text-slate-900">{pack.credits}</p>
@@ -279,7 +294,7 @@ function PaywallContent() {
                     <span className="text-sm font-bold text-purple-600">{pack.price}</span>
                     <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-purple-500 transition-colors" />
                   </div>
-                </a>
+                </button>
               ))}
             </div>
           </div>
