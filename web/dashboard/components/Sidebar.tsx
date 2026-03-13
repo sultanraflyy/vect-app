@@ -40,24 +40,26 @@ export default function Sidebar({ userEmail, onClose }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [creditsLeft, setCreditsLeft] = useState(0);
-  const totalCredits = getTotalCredits();
+  const [totalCredits, setTotalCredits] = useState(150);
 
   useEffect(() => {
     const fetchCredits = async () => {
       const left = await getCreditsLeft();
+      const total = await getTotalCredits();
       setCreditsLeft(left);
+      setTotalCredits(total);
     };
     fetchCredits();
   }, []);
 
   const handleSignOut = async () => {
-    resetCredits(); // Menghapus sisa cache (jika ada)
+    resetCredits();
     await supabase.auth.signOut();
     router.replace('/login');
   };
 
   const initial = userEmail ? userEmail[0].toUpperCase() : 'U';
-  const creditsPercent = Math.round((creditsLeft / totalCredits) * 100);
+  const creditsPercent = totalCredits > 0 ? Math.round((creditsLeft / totalCredits) * 100) : 0;
 
   return (
     <aside className="flex flex-col w-full h-full bg-white border-r border-slate-200">
