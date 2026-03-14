@@ -434,46 +434,7 @@ async function generateAll(trendSignals) {
   }
 
   // Write summary
-  const summaryPath = writeSummary(results, errors, theme);
-
-  console.log('═══════════════════════════════════════════════════');
-  console.log(`\n✅ Generated: ${results.length}/${Object.keys(CHANNEL_GENERATORS).length} channels`);
-  if (errors.length > 0) {
-    console.log(`❌ Failed: ${errors.length} channels`);
-    errors.forEach(e => console.log(`   - ${e.channel}: ${e.error}`));
-  }
-  console.log(`📋 Summary: ${summaryPath}\n`);
-
-  return { results, errors, theme };
-}
-
-async function generateSingle(channel, trendSignals) {
-  const theme = getWeeklyTheme();
-  console.log(`\n🎯 Theme: "${theme}"`);
-  console.log(`📝 Generating: ${channel}\n`);
-
-  const generator = CHANNEL_GENERATORS[channel];
-  if (!generator) {
-    throw new Error(`Unknown channel: ${channel}. Available: ${Object.keys(CHANNEL_GENERATORS).join(', ')}`);
-  }
-
-  const result = await generator(theme, trendSignals);
-  const voiceCheck = validateVoice(result.content);
-  const archivedPath = archiveContent(channel, result.content, theme);
-
-  if (channel === 'blog') {
-    archiveBlogPost(result.content);
-  }
-
-  console.log(`\n✅ ${channel} generated and archived`);
-  if (!voiceCheck.valid) {
-    console.log(`⚠ Voice issues: ${voiceCheck.issues.join(', ')}`);
-  }
-
-  return { ...result, archivedPath, voiceCheck };
-}
-
-function writeSummary(results, errors, theme) {
+  function writeSummary(results, errors, theme) {
   const repoRoot = path.resolve(__dirname, '..');
   const date = new Date().toISOString().split('T')[0];
   const summaryDir = path.join(repoRoot, 'content', 'signals');
@@ -493,7 +454,59 @@ function writeSummary(results, errors, theme) {
 
   const filePath = path.join(summaryDir, `${date}-generation-summary.json`);
   fs.writeFileSync(filePath, JSON.stringify(summary, null, 2), 'utf-8');
+
+  // --- TAMBAHAN BARU: Bikin file khusus untuk Make.com ---
+  const makecomPayload = {
+    linkedin_ready: false,
+    twitter_ready: false,
+    instagram_ready: false,
+    outreach_ready: false
+  };
+
+  // Ekstrak hasil dari masing-masing channel
+  results.forEach(result => {
+    try {
+      // Kita coba parse JSON dari AI (karena prompt kita nyuruh AI ngeluarin JSON)
+      const jsonMatch = result.content.match(/```json\s*([\s\S]*?)\s*```/) || result.content.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[1] || jsonMatch[0]);
+        
+        if (result.channel === 'linkedin') {
+          makecomPayload.linkedin_ready = true;
+          makecomPayload.linkedin_text = parsed.post_body || result.content;
+        }
+        else if (result.channel === 'x-thread') {
+          makecomPayload.twitter_ready = true;
+          // Gabungin array tweet jadi satu teks panjang buat Buffer
+          if (Array.isArray(parsed.tweets)) {
+            makecomPayload.twitter_text = parsed.tweets.map(t => t.text).join('\n\n');
+          } else {
+            makecomPayload.twitter_text = result.content;
+          }
+        }
+        else if (result.channel === 'instagram') {
+          makecomPayload.instagram_ready = true;
+          makecomPayload.instagram_text = parsed.caption || result.content;
+        }
+        else if (result.channel === 'outreach') {
+          makecomPayload.outreach_ready = true;
+          makecomPayload.outreach_target = "Target Audience";
+          makecomPayload.outreach_subject = parsed.cold_email?.subject_line || "Subject";
+          makecomPayload.outreach_body = parsed.cold_email?.body || result.content;
+        }
+      }
+    } catch (e) {
+      console.log(`Gagal parsing JSON untuk ${result.channel}, pakai format raw.`);
+    }
+  });
+
+  const payloadPath = path.join(repoRoot, 'content', 'latest-payload.json');
+  fs.writeFileSync(payloadPath, JSON.stringify(makecomPayload, null, 2), 'utf-8');
+  console.log(`  ✓ Make.com payload saved: ${payloadPath}`);
+  // --------------------------------------------------------
+
   return filePath;
+};
 }
 
 // ---------------------------------------------------------------------------
