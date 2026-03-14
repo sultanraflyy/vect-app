@@ -9,7 +9,7 @@ const config = {
   // Gemini API Configuration (Free Tier)
   gemini: {
     apiKey: process.env.GEMINI_API_KEY || '',
-    model: 'gemini-1.5-flash',
+    model: 'gemini-1.5-flash-latest',
     maxOutputTokens: 2048,
     temperature: 0.8,
     topP: 0.95,
