@@ -79,6 +79,29 @@ jobs:
             node agents/engine.js
           fi
 
+      - name: Validate payload before commit
+        id: validate
+        run: |
+          if [ ! -f "content/latest-payload.json" ]; then
+            echo "❌ ERROR: latest-payload.json not found!"
+            echo "payload_valid=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          # Check if at least one channel is ready
+          READY_COUNT=$(jq '[.linkedin_ready, .twitter_ready, .instagram_ready, .outreach_ready] | map(select(. == true)) | length' content/latest-payload.json)
+          
+          echo "Ready channels: $READY_COUNT/4"
+          
+          if [ "$READY_COUNT" -eq 0 ]; then
+            echo "⚠️  WARNING: No channels are ready (all false)"
+            echo "This will waste Make.com credits!"
+            echo "payload_valid=false" >> $GITHUB_OUTPUT
+          else
+            echo "✅ Payload valid: $READY_COUNT channels ready"
+            echo "payload_valid=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Commit and push content
         run: |
           git config user.name "github-actions[bot]"
@@ -98,17 +121,48 @@ jobs:
           fi
 
       - name: 🚀 Trigger Make.com Distribution
+        if: steps.validate.outputs.payload_valid == 'true'
         env:
           MAKECOM_WEBHOOK_URL: ${{ secrets.MAKECOM_WEBHOOK_URL }}
         run: |
-          echo "Sending real payload to Make.com..."
+          echo "Sending validated payload to Make.com..."
+          
           if [ -f "content/latest-payload.json" ]; then
-            curl -X POST -H "Content-Type: application/json" -d @content/latest-payload.json $MAKECOM_WEBHOOK_URL
-            echo "Payload sent!"
+            # Show what we're sending
+            echo "Payload content:"
+            cat content/latest-payload.json
+            
+            # Send to Make.com
+            HTTP_CODE=$(curl -X POST \
+              -H "Content-Type: application/json" \
+              -d @content/latest-payload.json \
+              -w "%{http_code}" \
+              -o /tmp/makecom-response.txt \
+              $MAKECOM_WEBHOOK_URL)
+            
+            echo ""
+            echo "HTTP Response Code: $HTTP_CODE"
+            echo "Response body:"
+            cat /tmp/makecom-response.txt
+            
+            if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
+              echo "✅ Payload sent successfully!"
+            else
+              echo "❌ Make.com returned error code: $HTTP_CODE"
+              exit 1
+            fi
           else
-            echo "Error: content/latest-payload.json not found!"
+            echo "❌ Error: content/latest-payload.json not found!"
             exit 1
           fi
+
+      - name: ⚠️  Skip Make.com (invalid payload)
+        if: steps.validate.outputs.payload_valid == 'false'
+        run: |
+          echo "❌ Skipping Make.com webhook - payload invalid or empty"
+          echo "This prevents wasting Make.com credits on empty data"
+          echo ""
+          echo "Check the 'Generate content' step logs to see what went wrong"
 
   notify-on-failure:
     needs: generate-content
