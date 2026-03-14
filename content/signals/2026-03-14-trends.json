@@ -1,0 +1,50 @@
+{
+  "date": "2026-03-14",
+  "analysis": {
+    "totalSignals": 1,
+    "topSignals": [
+      {
+        "source": "hackernews",
+        "title": "Online astroturfing: A problem beyond disinformation",
+        "excerpt": "",
+        "score": 25,
+        "comments": 4,
+        "matchedKeywords": [
+          "disinformation"
+        ],
+        "relevanceScore": 25,
+        "url": "https://journals.sagepub.com/doi/10.1177/01914537221108467",
+        "timestamp": "2026-03-14T15:53:58.000Z"
+      }
+    ],
+    "topicClusters": [
+      {
+        "keyword": "disinformation",
+        "frequency": 1,
+        "status": "emerging"
+      }
+    ],
+    "emotionalSignals": [
+      {
+        "source": "hackernews",
+        "title": "Online astroturfing: A problem beyond disinformation",
+        "excerpt": "",
+        "score": 25,
+        "comments": 4,
+        "matchedKeywords": [
+          "disinformation"
+        ],
+        "relevanceScore": 25,
+        "url": "https://journals.sagepub.com/doi/10.1177/01914537221108467",
+        "timestamp": "2026-03-14T15:53:58.000Z"
+      }
+    ],
+    "sourceSummary": {
+      "reddit": 0,
+      "hackernews": 1
+    }
+  },
+  "contrarianTakes": null,
+  "rawSignalCount": 1,
+  "timestamp": "2026-03-14T17:19:22.353Z"
+}
