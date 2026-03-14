@@ -120,37 +120,33 @@ jobs:
             git push
           fi
 
-      - name: 🚀 Trigger Make.com Distribution
+      - name: 🚀 Trigger Make.com Distribution (Fire-and-Forget)
         if: steps.validate.outputs.payload_valid == 'true'
         env:
           MAKECOM_WEBHOOK_URL: ${{ secrets.MAKECOM_WEBHOOK_URL }}
         run: |
-          echo "Sending validated payload to Make.com..."
+          echo "Sending payload to Make.com (fire-and-forget mode)..."
           
           if [ -f "content/latest-payload.json" ]; then
             # Show what we're sending
             echo "Payload content:"
             cat content/latest-payload.json
+            echo ""
             
-            # Send to Make.com
-            HTTP_CODE=$(curl -X POST \
+            # Send webhook in background with --max-time 5 (don't wait for response)
+            curl -X POST \
               -H "Content-Type: application/json" \
               -d @content/latest-payload.json \
-              -w "%{http_code}" \
-              -o /tmp/makecom-response.txt \
-              $MAKECOM_WEBHOOK_URL)
+              --max-time 5 \
+              --connect-timeout 5 \
+              $MAKECOM_WEBHOOK_URL > /dev/null 2>&1 &
             
-            echo ""
-            echo "HTTP Response Code: $HTTP_CODE"
-            echo "Response body:"
-            cat /tmp/makecom-response.txt
+            echo "✅ Webhook sent to Make.com (not waiting for response)"
+            echo "Make.com will process this asynchronously"
             
-            if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 300 ]; then
-              echo "✅ Payload sent successfully!"
-            else
-              echo "❌ Make.com returned error code: $HTTP_CODE"
-              exit 1
-            fi
+            # Give curl 1 second to send the request, then move on
+            sleep 1
+            
           else
             echo "❌ Error: content/latest-payload.json not found!"
             exit 1
