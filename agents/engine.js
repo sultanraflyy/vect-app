@@ -7,7 +7,7 @@ const path = require('path');
 const config = require('./config/config.js');
 
 // ---------------------------------------------------------------------------
-// Gemini API Client
+// Gemini API Client with JSON mode
 // ---------------------------------------------------------------------------
 
 async function callGemini(systemPrompt, userPrompt) {
@@ -22,6 +22,7 @@ async function callGemini(systemPrompt, userPrompt) {
       maxOutputTokens: config.gemini.maxOutputTokens,
       temperature: config.gemini.temperature,
       topP: config.gemini.topP,
+      responseMimeType: 'application/json', // Force JSON output
     },
   };
 
@@ -64,54 +65,160 @@ function getWeeklyTheme() {
 }
 
 // ---------------------------------------------------------------------------
-// Channel Generators
+// Channel Generators with explicit JSON schemas
 // ---------------------------------------------------------------------------
 
 async function generateReddit(theme, trendSignals) {
-  const sys = `${loadVoiceModel()}\n\n${loadPromptTemplate('reddit')}`;
-  const usr = `Generate a Reddit post.\nTHEME: ${theme}\nTREND:\n${trendSignals || 'None'}\nOutput as JSON.`;
+  const sys = loadVoiceModel();
+  const usr = `${loadPromptTemplate('reddit')}
+
+THEME: ${theme}
+TREND: ${trendSignals || 'None'}
+
+Return ONLY valid JSON with this exact schema:
+{
+  "title": "Post title",
+  "body": "Full post body text",
+  "closing_question": "The final open-ended question",
+  "suggested_flair": "Discussion",
+  "target_subreddit": "r/SaaS"
+}`;
+  
   const content = await callGemini(sys, usr);
   return { channel: 'reddit', content, theme };
 }
 
 async function generateLinkedIn(theme, trendSignals) {
-  const sys = `${loadVoiceModel()}\n\n${loadPromptTemplate('linkedin')}`;
-  const usr = `Generate a LinkedIn post.\nTHEME: ${theme}\nTREND:\n${trendSignals || 'None'}\nOutput as JSON.`;
+  const sys = loadVoiceModel();
+  const usr = `${loadPromptTemplate('linkedin')}
+
+THEME: ${theme}
+TREND: ${trendSignals || 'None'}
+
+Return ONLY valid JSON with this exact schema:
+{
+  "post_body": "Full LinkedIn post with line breaks",
+  "hashtags": ["#AITrust", "#Provenance", "#DigitalIntegrity"],
+  "hook_line": "First line of the post (the hook)",
+  "estimated_read_time": "1 min"
+}`;
+
   const content = await callGemini(sys, usr);
   return { channel: 'linkedin', content, theme };
 }
 
 async function generateXThread(theme, trendSignals) {
-  const sys = `${loadVoiceModel()}\n\n${loadPromptTemplate('x-thread')}`;
-  const usr = `Generate a 7-tweet X thread.\nTHEME: ${theme}\nTREND:\n${trendSignals || 'None'}\nOutput as JSON.`;
+  const sys = loadVoiceModel();
+  const usr = `${loadPromptTemplate('x-thread')}
+
+THEME: ${theme}
+TREND: ${trendSignals || 'None'}
+
+Return ONLY valid JSON with this exact schema:
+{
+  "tweets": [
+    { "number": 1, "text": "Tweet text", "type": "hook" },
+    { "number": 2, "text": "Tweet text", "type": "argument" },
+    { "number": 3, "text": "Tweet text", "type": "argument" },
+    { "number": 4, "text": "Tweet text", "type": "insight" },
+    { "number": 5, "text": "Tweet text", "type": "insight" },
+    { "number": 6, "text": "Tweet text", "type": "reframe" },
+    { "number": 7, "text": "Tweet text", "type": "closing" }
+  ],
+  "hashtags": ["#AIProvenance", "#DigitalTrust"],
+  "thread_hook_summary": "One-line summary of the thread thesis"
+}`;
+
   const content = await callGemini(sys, usr);
   return { channel: 'x-thread', content, theme };
 }
 
 async function generateInstagram(theme, trendSignals) {
-  const sys = `${loadVoiceModel()}\n\n${loadPromptTemplate('instagram')}`;
-  const usr = `Generate an Instagram caption.\nTHEME: ${theme}\nTREND:\n${trendSignals || 'None'}\nOutput as JSON.`;
+  const sys = loadVoiceModel();
+  const usr = `${loadPromptTemplate('instagram')}
+
+THEME: ${theme}
+TREND: ${trendSignals || 'None'}
+
+Return ONLY valid JSON with this exact schema:
+{
+  "caption": "Full Instagram caption text",
+  "hashtags": ["#DigitalTrust", "#Provenance", "#AIIntegrity"],
+  "visual_concept": "Description of recommended visual/graphic",
+  "hook_line": "First line of the caption",
+  "word_count": 200
+}`;
+
   const content = await callGemini(sys, usr);
   return { channel: 'instagram', content, theme };
 }
 
 async function generateOutreach(theme, trendSignals) {
-  const sys = `${loadVoiceModel()}\n\n${loadPromptTemplate('outreach')}`;
-  const usr = `Generate outreach templates.\nTHEME: ${theme}\nOutput as JSON.`;
+  const sys = loadVoiceModel();
+  const usr = `${loadPromptTemplate('outreach')}
+
+THEME: ${theme}
+
+Return ONLY valid JSON with this exact schema:
+{
+  "cold_email": {
+    "subject_line": "Subject text",
+    "body": "Email body with [NAME], [COMPANY], [OBSERVATION] placeholders",
+    "word_count": 100
+  },
+  "linkedin_dm": {
+    "message": "DM text with [NAME], [COMPANY], [OBSERVATION] placeholders",
+    "word_count": 65
+  }
+}`;
+
   const content = await callGemini(sys, usr);
   return { channel: 'outreach', content, theme };
 }
 
 async function generateCommunity(theme, trendSignals) {
-  const sys = `${loadVoiceModel()}\n\n${loadPromptTemplate('community')}`;
-  const usr = `Generate 3 Slack responses.\nTHEME: ${theme}\nTREND:\n${trendSignals || 'None'}\nOutput as JSON.`;
+  const sys = loadVoiceModel();
+  const usr = `${loadPromptTemplate('community')}
+
+THEME: ${theme}
+TREND: ${trendSignals || 'None'}
+
+Return ONLY valid JSON with this exact schema:
+{
+  "responses": [
+    {
+      "question": "Realistic community question",
+      "answer": "Expert witness response text",
+      "community_context": "Slack/Discord channel type",
+      "expertise_signal": "What authority this demonstrates"
+    }
+  ]
+}`;
+
   const content = await callGemini(sys, usr);
   return { channel: 'community', content, theme };
 }
 
 async function generateBlog(theme, trendSignals) {
-  const sys = `${loadVoiceModel()}\n\n${loadPromptTemplate('blog')}`;
-  const usr = `Generate a SEO micro-blog.\nTHEME: ${theme}\nTREND:\n${trendSignals || 'None'}\nOutput as JSON.`;
+  const sys = loadVoiceModel();
+  const usr = `${loadPromptTemplate('blog')}
+
+THEME: ${theme}
+TREND: ${trendSignals || 'None'}
+
+Return ONLY valid JSON with this exact schema:
+{
+  "title": "Article title (H1)",
+  "slug": "url-friendly-slug",
+  "meta_description": "150-160 character meta description",
+  "content_markdown": "Full article in markdown format",
+  "target_keyword": "primary keyword",
+  "secondary_keywords": ["keyword1", "keyword2"],
+  "word_count": 300,
+  "estimated_read_time": "2 min",
+  "published_date": "YYYY-MM-DD"
+}`;
+
   const content = await callGemini(sys, usr);
   return { channel: 'blog', content, theme };
 }
@@ -153,37 +260,22 @@ function writeSummary(results, errors, theme) {
     outreach_ready: false
   };
 
+  console.log('\n🔍 Processing results for Make.com payload:\n');
+
   results.forEach(result => {
     const rawContent = result.content || '';
     
-    // Robust JSON extraction
+    console.log(`  Channel: ${result.channel}`);
+    console.log(`  Raw length: ${rawContent.length} chars`);
+    
+    // Since we forced JSON mode, try direct parse first
     let parsed = null;
     try {
-      // Method 1: Try direct JSON parse (if Gemini returned pure JSON)
       parsed = JSON.parse(rawContent);
-    } catch {
-      try {
-        // Method 2: Extract from markdown code blocks
-        let jsonStr = '';
-        if (rawContent.includes('```json')) {
-          jsonStr = rawContent.split('```json')[1].split('```')[0].trim();
-        } else if (rawContent.includes('```')) {
-          jsonStr = rawContent.split('```')[1].split('```')[0].trim();
-        } else if (rawContent.includes('{')) {
-          // Method 3: Extract first complete JSON object
-          const firstBrace = rawContent.indexOf('{');
-          const lastBrace = rawContent.lastIndexOf('}');
-          if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-            jsonStr = rawContent.substring(firstBrace, lastBrace + 1);
-          }
-        }
-        
-        if (jsonStr) {
-          parsed = JSON.parse(jsonStr);
-        }
-      } catch (parseErr) {
-        console.warn(`  ⚠ Failed to parse ${result.channel} content:`, parseErr.message);
-      }
+      console.log(`  ✅ JSON parsed successfully`);
+    } catch (parseErr) {
+      console.log(`  ❌ JSON parse failed: ${parseErr.message}`);
+      console.log(`  Raw content preview: ${rawContent.substring(0, 200)}...`);
     }
 
     // Populate Make.com payload with clean data
@@ -191,10 +283,10 @@ function writeSummary(results, errors, theme) {
       if (parsed && parsed.post_body) {
         makecomPayload.linkedin_text = parsed.post_body;
         makecomPayload.linkedin_ready = true;
-      } else if (rawContent.trim().length > 50) {
-        // Fallback: use raw if it's substantial
-        makecomPayload.linkedin_text = rawContent;
-        makecomPayload.linkedin_ready = true;
+        console.log(`  ✅ LinkedIn: post_body extracted (${parsed.post_body.length} chars)`);
+      } else {
+        console.log(`  ❌ LinkedIn: No post_body field found`);
+        console.log(`  Available fields: ${Object.keys(parsed || {}).join(', ')}`);
       }
     }
 
@@ -205,9 +297,9 @@ function writeSummary(results, errors, theme) {
           .filter(Boolean)
           .join('\n\n');
         makecomPayload.twitter_ready = true;
-      } else if (rawContent.trim().length > 50) {
-        makecomPayload.twitter_text = rawContent;
-        makecomPayload.twitter_ready = true;
+        console.log(`  ✅ Twitter: ${parsed.tweets.length} tweets extracted`);
+      } else {
+        console.log(`  ❌ Twitter: No tweets array found`);
       }
     }
 
@@ -215,9 +307,9 @@ function writeSummary(results, errors, theme) {
       if (parsed && parsed.caption) {
         makecomPayload.instagram_text = parsed.caption;
         makecomPayload.instagram_ready = true;
-      } else if (rawContent.trim().length > 50) {
-        makecomPayload.instagram_text = rawContent;
-        makecomPayload.instagram_ready = true;
+        console.log(`  ✅ Instagram: caption extracted (${parsed.caption.length} chars)`);
+      } else {
+        console.log(`  ❌ Instagram: No caption field found`);
       }
     }
 
@@ -226,11 +318,13 @@ function writeSummary(results, errors, theme) {
         makecomPayload.outreach_body = parsed.cold_email.body;
         makecomPayload.outreach_subject = parsed.cold_email.subject_line || '';
         makecomPayload.outreach_ready = true;
-      } else if (rawContent.trim().length > 50) {
-        makecomPayload.outreach_body = rawContent;
-        makecomPayload.outreach_ready = true;
+        console.log(`  ✅ Outreach: cold_email extracted`);
+      } else {
+        console.log(`  ❌ Outreach: No cold_email.body found`);
       }
     }
+    
+    console.log('');
   });
 
   const payloadPath = path.join(repoRoot, 'content', 'latest-payload.json');
@@ -239,9 +333,14 @@ function writeSummary(results, errors, theme) {
   // Validation output
   const readyCount = Object.values(makecomPayload).filter(v => v === true).length;
   console.log(`\n  ✓ Make.com payload saved: ${payloadPath}`);
-  console.log(`    Ready channels: ${readyCount}/4`);
+  console.log(`    Ready channels: ${readyCount}/4\n`);
+  
   if (readyCount === 0) {
-    console.warn(`    ⚠ WARNING: No channels marked as ready! Check Gemini output format.`);
+    console.warn(`    ⚠️  WARNING: No channels marked as ready!`);
+    console.warn(`    This means either:`);
+    console.warn(`    1. Gemini API is not returning valid JSON`);
+    console.warn(`    2. JSON schema doesn't match expected fields`);
+    console.warn(`    3. No content was generated at all\n`);
   }
 }
 
@@ -254,21 +353,30 @@ async function main() {
   const errors = [];
   const theme = getWeeklyTheme();
 
+  console.log(`\n📝 Vect Content Engine`);
+  console.log(`Theme: ${theme}\n`);
+
   try {
     if (targetChannel) {
-      console.log(`📝 Generating ${targetChannel}...`);
+      console.log(`Generating ${targetChannel}...`);
       results.push(await CHANNEL_GENERATORS[targetChannel](theme, null));
     } else {
       for (const [ch, generator] of Object.entries(CHANNEL_GENERATORS)) {
-        console.log(`📝 Generating ${ch}...`);
-        try { results.push(await generator(theme, null)); } 
-        catch (e) { errors.push({ channel: ch, error: e.message }); }
+        console.log(`Generating ${ch}...`);
+        try { 
+          results.push(await generator(theme, null)); 
+          console.log(`  ✅ ${ch} generated`);
+        } 
+        catch (e) { 
+          errors.push({ channel: ch, error: e.message }); 
+          console.log(`  ❌ ${ch} failed: ${e.message}`);
+        }
       }
     }
     writeSummary(results, errors, theme);
-    console.log("✅ Done!");
+    console.log("✅ Done!\n");
   } catch (error) {
-    console.error(`💥 Fatal error: ${error.message}`);
+    console.error(`\n💥 Fatal error: ${error.message}`);
     process.exit(1);
   }
 }
