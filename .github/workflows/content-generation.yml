@@ -89,7 +89,11 @@ jobs:
           else
             DATE=$(date +%Y-%m-%d)
             git commit -m "content: auto-generated weekly content ($DATE)"
-            git pull --rebase origin master
+            
+            # Matikan rebase dan suruh Git otomatis memilih file lokal (ours) jika ada tabrakan
+            git config pull.rebase false
+            git pull origin master -X ours --no-edit
+            
             git push
           fi
 
