@@ -147,35 +147,102 @@ function writeSummary(results, errors, theme) {
 
   // --- MAKE.COM PAYLOAD ---
   const makecomPayload = {
-    linkedin_ready: false, twitter_ready: false,
-    instagram_ready: false, outreach_ready: false
+    linkedin_ready: false, 
+    twitter_ready: false,
+    instagram_ready: false, 
+    outreach_ready: false
   };
 
   results.forEach(result => {
-    if (result.channel === 'linkedin') { makecomPayload.linkedin_ready = true; makecomPayload.linkedin_text = result.content; }
-    if (result.channel === 'x-thread') { makecomPayload.twitter_ready = true; makecomPayload.twitter_text = result.content; }
-    if (result.channel === 'instagram') { makecomPayload.instagram_ready = true; makecomPayload.instagram_text = result.content; }
-    if (result.channel === 'outreach') { makecomPayload.outreach_ready = true; makecomPayload.outreach_body = result.content; }
-
+    const rawContent = result.content || '';
+    
+    // Robust JSON extraction
+    let parsed = null;
     try {
-      let jsonStr = '';
-      if (result.content.includes('```json')) jsonStr = result.content.split('```json')[1].split('```')[0].trim();
-      else if (result.content.includes('```')) jsonStr = result.content.split('```')[1].split('```')[0].trim();
-      else if (result.content.includes('{')) jsonStr = result.content.substring(result.content.indexOf('{'), result.content.lastIndexOf('}') + 1);
-
-      if (jsonStr) {
-        const parsed = JSON.parse(jsonStr);
-        if (result.channel === 'linkedin') makecomPayload.linkedin_text = parsed.post_body || result.content;
-        if (result.channel === 'x-thread') makecomPayload.twitter_text = Array.isArray(parsed.tweets) ? parsed.tweets.map(t => t.text || t).join('\n\n') : result.content;
-        if (result.channel === 'instagram') makecomPayload.instagram_text = parsed.caption || result.content;
-        if (result.channel === 'outreach') makecomPayload.outreach_body = parsed.cold_email?.body || result.content;
+      // Method 1: Try direct JSON parse (if Gemini returned pure JSON)
+      parsed = JSON.parse(rawContent);
+    } catch {
+      try {
+        // Method 2: Extract from markdown code blocks
+        let jsonStr = '';
+        if (rawContent.includes('```json')) {
+          jsonStr = rawContent.split('```json')[1].split('```')[0].trim();
+        } else if (rawContent.includes('```')) {
+          jsonStr = rawContent.split('```')[1].split('```')[0].trim();
+        } else if (rawContent.includes('{')) {
+          // Method 3: Extract first complete JSON object
+          const firstBrace = rawContent.indexOf('{');
+          const lastBrace = rawContent.lastIndexOf('}');
+          if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+            jsonStr = rawContent.substring(firstBrace, lastBrace + 1);
+          }
+        }
+        
+        if (jsonStr) {
+          parsed = JSON.parse(jsonStr);
+        }
+      } catch (parseErr) {
+        console.warn(`  ⚠ Failed to parse ${result.channel} content:`, parseErr.message);
       }
-    } catch (e) {}
+    }
+
+    // Populate Make.com payload with clean data
+    if (result.channel === 'linkedin') {
+      if (parsed && parsed.post_body) {
+        makecomPayload.linkedin_text = parsed.post_body;
+        makecomPayload.linkedin_ready = true;
+      } else if (rawContent.trim().length > 50) {
+        // Fallback: use raw if it's substantial
+        makecomPayload.linkedin_text = rawContent;
+        makecomPayload.linkedin_ready = true;
+      }
+    }
+
+    if (result.channel === 'x-thread') {
+      if (parsed && Array.isArray(parsed.tweets)) {
+        makecomPayload.twitter_text = parsed.tweets
+          .map(t => (typeof t === 'string' ? t : t.text || ''))
+          .filter(Boolean)
+          .join('\n\n');
+        makecomPayload.twitter_ready = true;
+      } else if (rawContent.trim().length > 50) {
+        makecomPayload.twitter_text = rawContent;
+        makecomPayload.twitter_ready = true;
+      }
+    }
+
+    if (result.channel === 'instagram') {
+      if (parsed && parsed.caption) {
+        makecomPayload.instagram_text = parsed.caption;
+        makecomPayload.instagram_ready = true;
+      } else if (rawContent.trim().length > 50) {
+        makecomPayload.instagram_text = rawContent;
+        makecomPayload.instagram_ready = true;
+      }
+    }
+
+    if (result.channel === 'outreach') {
+      if (parsed && parsed.cold_email && parsed.cold_email.body) {
+        makecomPayload.outreach_body = parsed.cold_email.body;
+        makecomPayload.outreach_subject = parsed.cold_email.subject_line || '';
+        makecomPayload.outreach_ready = true;
+      } else if (rawContent.trim().length > 50) {
+        makecomPayload.outreach_body = rawContent;
+        makecomPayload.outreach_ready = true;
+      }
+    }
   });
 
   const payloadPath = path.join(repoRoot, 'content', 'latest-payload.json');
   fs.writeFileSync(payloadPath, JSON.stringify(makecomPayload, null, 2), 'utf-8');
-  console.log(`  ✓ Make.com payload saved: ${payloadPath}`);
+  
+  // Validation output
+  const readyCount = Object.values(makecomPayload).filter(v => v === true).length;
+  console.log(`\n  ✓ Make.com payload saved: ${payloadPath}`);
+  console.log(`    Ready channels: ${readyCount}/4`);
+  if (readyCount === 0) {
+    console.warn(`    ⚠ WARNING: No channels marked as ready! Check Gemini output format.`);
+  }
 }
 
 async function main() {
