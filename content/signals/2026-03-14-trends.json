@@ -7,12 +7,12 @@
         "source": "hackernews",
         "title": "Online astroturfing: A problem beyond disinformation",
         "excerpt": "",
-        "score": 40,
-        "comments": 12,
+        "score": 42,
+        "comments": 16,
         "matchedKeywords": [
           "disinformation"
         ],
-        "relevanceScore": 40,
+        "relevanceScore": 42,
         "url": "https://journals.sagepub.com/doi/10.1177/01914537221108467",
         "timestamp": "2026-03-14T15:53:58.000Z"
       }
@@ -29,12 +29,12 @@
         "source": "hackernews",
         "title": "Online astroturfing: A problem beyond disinformation",
         "excerpt": "",
-        "score": 40,
-        "comments": 12,
+        "score": 42,
+        "comments": 16,
         "matchedKeywords": [
           "disinformation"
         ],
-        "relevanceScore": 40,
+        "relevanceScore": 42,
         "url": "https://journals.sagepub.com/doi/10.1177/01914537221108467",
         "timestamp": "2026-03-14T15:53:58.000Z"
       }
@@ -46,5 +46,5 @@
   },
   "contrarianTakes": null,
   "rawSignalCount": 1,
-  "timestamp": "2026-03-14T18:07:34.803Z"
+  "timestamp": "2026-03-14T18:17:05.099Z"
 }
