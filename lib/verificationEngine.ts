@@ -140,6 +140,7 @@ export async function processVerification(
   inputType: string = 'text',
   maxClaims: number = 50,
   prescannedClaims?: string[], // claims from scan to skip re-extraction
+  skipBackendReport: boolean = true, // pass report_id to backend to avoid duplicate
 ): Promise<{ claims: any[]; creditsUsed: number }> {
   onProgress(10);
   let currentProgress = 10;
@@ -163,6 +164,7 @@ export async function processVerification(
             max_claims: maxClaims,
             claims: prescannedClaims ?? null,
             source_url: inputType === 'url' ? content : undefined,
+            report_id: skipBackendReport ? reportId : null,
           }),
         },
         60000

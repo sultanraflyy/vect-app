@@ -146,7 +146,8 @@ function VerifyContent() {
         setProgress,
         inputType,
         maxClaims,
-        claimTexts.length > 0 ? claimTexts : undefined
+        claimTexts.length > 0 ? claimTexts : undefined,
+        reportData.id
       );
 
       const verified = claims.filter((c: any) => c.status === 'verified').length;
@@ -168,6 +169,10 @@ function VerifyContent() {
 
       // Deduct the actual credits used (per-claim from backend)
       await useCredits(creditsUsed);
+
+      // Refresh local creditsLeft so UI reflects the deduction
+      const updatedLeft = await getCreditsLeft();
+      setCreditsLeft(updatedLeft);
 
       setStep('done');
       setTimeout(() => router.push(`/report/${reportData.id}`), 1500);
