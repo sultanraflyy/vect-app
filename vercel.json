@@ -1,6 +1,6 @@
 {
   "installCommand": "npm install --legacy-peer-deps",
-  "buildCommand": "node_modules/.bin/expo export -p web --output-dir dist",
+  "buildCommand": "npm install --legacy-peer-deps && npx --yes expo@54 export -p web --output-dir dist",
   "outputDirectory": "dist",
   "framework": null
 }
