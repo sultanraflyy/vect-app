@@ -341,7 +341,7 @@ export default function VerifyScreen() {
         scannedClaims.length > 0 ? scannedClaims.slice(0, maxClaims) : undefined,
       );
 
-      await deductCredits(creditsUsed || claims.length);
+      // Credits are deducted server-side by the backend after verification.
       await addClaimsToReport(pendingReportId, claims, creditsUsed);
       router.push(`/report?id=${pendingReportId}`);
       clear();

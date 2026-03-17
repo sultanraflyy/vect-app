@@ -26,7 +26,7 @@ import {
   processVerification,
   uploadFile,
 } from '@/lib/api';
-import { useCredits, getCreditsLeft, hasEnoughCredits } from '@/lib/credits';
+import { getCreditsLeft, hasEnoughCredits } from '@/lib/credits';
 import { supabase } from '@/lib/supabase';
 
 type InputMode = 'text' | 'url' | 'pdf';
@@ -167,10 +167,8 @@ function VerifyContent() {
         })
         .eq('id', reportData.id);
 
-      // Deduct the actual credits used (per-claim from backend)
-      await useCredits(creditsUsed);
-
-      // Refresh local creditsLeft so UI reflects the deduction
+      // Credits are deducted server-side by the backend after verification.
+      // Just refresh the UI to reflect the new balance.
       const updatedLeft = await getCreditsLeft();
       setCreditsLeft(updatedLeft);
 
