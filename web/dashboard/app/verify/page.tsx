@@ -26,7 +26,7 @@ import {
   processVerification,
   uploadFile,
 } from '@/lib/api';
-import { useCredits, getCreditsLeft, hasEnoughCredits } from '@/lib/credits';
+import { getCreditsLeft, hasEnoughCredits } from '@/lib/credits';
 import { supabase } from '@/lib/supabase';
 
 type InputMode = 'text' | 'url' | 'pdf';
@@ -146,7 +146,8 @@ function VerifyContent() {
         setProgress,
         inputType,
         maxClaims,
-        claimTexts.length > 0 ? claimTexts : undefined
+        claimTexts.length > 0 ? claimTexts : undefined,
+        reportData.id
       );
 
       const verified = claims.filter((c: any) => c.status === 'verified').length;
@@ -166,8 +167,10 @@ function VerifyContent() {
         })
         .eq('id', reportData.id);
 
-      // Deduct the actual credits used (per-claim from backend)
-      await useCredits(creditsUsed);
+      // Credits are deducted server-side by the backend after verification.
+      // Just refresh the UI to reflect the new balance.
+      const updatedLeft = await getCreditsLeft();
+      setCreditsLeft(updatedLeft);
 
       setStep('done');
       setTimeout(() => router.push(`/report/${reportData.id}`), 1500);

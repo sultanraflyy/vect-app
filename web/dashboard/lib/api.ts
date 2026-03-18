@@ -76,7 +76,8 @@ export async function processVerification(
   onProgress: (progress: number) => void,
   inputType = 'text',
   maxClaims = 50,
-  prescannedClaims?: string[]
+  prescannedClaims?: string[],
+  reportId?: string
 ): Promise<{ claims: any[]; creditsUsed: number }> {
   onProgress(10);
   let currentProgress = 10;
@@ -96,6 +97,7 @@ export async function processVerification(
         max_claims: maxClaims,
         claims: prescannedClaims ?? null,
         source_url: inputType === 'url' ? content : undefined,
+        report_id: reportId ?? null,
       }),
       signal: AbortSignal.timeout(90000),
     });

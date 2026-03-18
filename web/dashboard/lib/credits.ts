@@ -38,11 +38,14 @@ export async function useCredits(amount: number): Promise<boolean> {
   if (left < amount) return false;
 
   const used = await getCreditsUsed();
-  
+
+  // Use upsert so it works even if the profile row doesn't exist yet
   const { error } = await supabase
     .from('profiles')
-    .update({ credits_used: used + amount })
-    .eq('id', session.user.id);
+    .upsert(
+      { id: session.user.id, credits_used: used + amount },
+      { onConflict: 'id' }
+    );
 
   if (error) return false;
   return true;
