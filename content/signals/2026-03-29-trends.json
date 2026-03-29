@@ -1,0 +1,16 @@
+{
+  "date": "2026-03-29",
+  "analysis": {
+    "totalSignals": 0,
+    "topSignals": [],
+    "topicClusters": [],
+    "emotionalSignals": [],
+    "sourceSummary": {
+      "reddit": 0,
+      "hackernews": 0
+    }
+  },
+  "contrarianTakes": null,
+  "rawSignalCount": 0,
+  "timestamp": "2026-03-29T08:26:15.345Z"
+}

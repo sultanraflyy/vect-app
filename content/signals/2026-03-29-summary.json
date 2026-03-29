@@ -1,0 +1,45 @@
+{
+  "date": "2026-03-29",
+  "theme": "The Provenance Crisis",
+  "generated": [],
+  "failed": [
+    "reddit",
+    "linkedin",
+    "x-thread",
+    "instagram",
+    "outreach",
+    "community",
+    "blog"
+  ],
+  "errors": [
+    {
+      "channel": "reddit",
+      "error": "Gemini API error (429): {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"Your project has exceeded its spending cap.\",\n    \"status\": \"RESOURCE_EXHAUSTED\"\n  }\n}\n"
+    },
+    {
+      "channel": "linkedin",
+      "error": "Gemini API error (429): {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"Your project has exceeded its spending cap.\",\n    \"status\": \"RESOURCE_EXHAUSTED\"\n  }\n}\n"
+    },
+    {
+      "channel": "x-thread",
+      "error": "Gemini API error (429): {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"Your project has exceeded its spending cap.\",\n    \"status\": \"RESOURCE_EXHAUSTED\"\n  }\n}\n"
+    },
+    {
+      "channel": "instagram",
+      "error": "Gemini API error (429): {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"Your project has exceeded its spending cap.\",\n    \"status\": \"RESOURCE_EXHAUSTED\"\n  }\n}\n"
+    },
+    {
+      "channel": "outreach",
+      "error": "Gemini API error (429): {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"Your project has exceeded its spending cap.\",\n    \"status\": \"RESOURCE_EXHAUSTED\"\n  }\n}\n"
+    },
+    {
+      "channel": "community",
+      "error": "Gemini API error (429): {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"Your project has exceeded its spending cap.\",\n    \"status\": \"RESOURCE_EXHAUSTED\"\n  }\n}\n"
+    },
+    {
+      "channel": "blog",
+      "error": "Gemini API error (429): {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"Your project has exceeded its spending cap.\",\n    \"status\": \"RESOURCE_EXHAUSTED\"\n  }\n}\n"
+    }
+  ],
+  "timestamp": "2026-03-29T08:26:33.717Z"
+}
