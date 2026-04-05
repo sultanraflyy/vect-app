@@ -1,0 +1,45 @@
+{
+  "date": "2026-04-05",
+  "theme": "Institutional Credibility Collapse",
+  "generated": [],
+  "failed": [
+    "reddit",
+    "linkedin",
+    "x-thread",
+    "instagram",
+    "outreach",
+    "community",
+    "blog"
+  ],
+  "errors": [
+    {
+      "channel": "reddit",
+      "error": "Gemini API error (400): {\n  \"error\": {\n    \"code\": 400,\n    \"message\": \"API Key not found. Please pass a valid API key.\",\n    \"status\": \"INVALID_ARGUMENT\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\",\n        \"reason\": \"API_KEY_INVALID\",\n        \"domain\": \"googleapis.com\",\n        \"metadata\": {\n          \"service\": \"generativelanguage.googleapis.com\"\n        }\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.LocalizedMessage\",\n        \"locale\": \"en-US\",\n        \"message\": \"API Key not found. Please pass a valid API key.\"\n      }\n    ]\n  }\n}\n"
+    },
+    {
+      "channel": "linkedin",
+      "error": "Gemini API error (400): {\n  \"error\": {\n    \"code\": 400,\n    \"message\": \"API Key not found. Please pass a valid API key.\",\n    \"status\": \"INVALID_ARGUMENT\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\",\n        \"reason\": \"API_KEY_INVALID\",\n        \"domain\": \"googleapis.com\",\n        \"metadata\": {\n          \"service\": \"generativelanguage.googleapis.com\"\n        }\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.LocalizedMessage\",\n        \"locale\": \"en-US\",\n        \"message\": \"API Key not found. Please pass a valid API key.\"\n      }\n    ]\n  }\n}\n"
+    },
+    {
+      "channel": "x-thread",
+      "error": "Gemini API error (400): {\n  \"error\": {\n    \"code\": 400,\n    \"message\": \"API Key not found. Please pass a valid API key.\",\n    \"status\": \"INVALID_ARGUMENT\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\",\n        \"reason\": \"API_KEY_INVALID\",\n        \"domain\": \"googleapis.com\",\n        \"metadata\": {\n          \"service\": \"generativelanguage.googleapis.com\"\n        }\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.LocalizedMessage\",\n        \"locale\": \"en-US\",\n        \"message\": \"API Key not found. Please pass a valid API key.\"\n      }\n    ]\n  }\n}\n"
+    },
+    {
+      "channel": "instagram",
+      "error": "Gemini API error (400): {\n  \"error\": {\n    \"code\": 400,\n    \"message\": \"API Key not found. Please pass a valid API key.\",\n    \"status\": \"INVALID_ARGUMENT\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\",\n        \"reason\": \"API_KEY_INVALID\",\n        \"domain\": \"googleapis.com\",\n        \"metadata\": {\n          \"service\": \"generativelanguage.googleapis.com\"\n        }\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.LocalizedMessage\",\n        \"locale\": \"en-US\",\n        \"message\": \"API Key not found. Please pass a valid API key.\"\n      }\n    ]\n  }\n}\n"
+    },
+    {
+      "channel": "outreach",
+      "error": "Gemini API error (400): {\n  \"error\": {\n    \"code\": 400,\n    \"message\": \"API Key not found. Please pass a valid API key.\",\n    \"status\": \"INVALID_ARGUMENT\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\",\n        \"reason\": \"API_KEY_INVALID\",\n        \"domain\": \"googleapis.com\",\n        \"metadata\": {\n          \"service\": \"generativelanguage.googleapis.com\"\n        }\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.LocalizedMessage\",\n        \"locale\": \"en-US\",\n        \"message\": \"API Key not found. Please pass a valid API key.\"\n      }\n    ]\n  }\n}\n"
+    },
+    {
+      "channel": "community",
+      "error": "Gemini API error (400): {\n  \"error\": {\n    \"code\": 400,\n    \"message\": \"API Key not found. Please pass a valid API key.\",\n    \"status\": \"INVALID_ARGUMENT\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\",\n        \"reason\": \"API_KEY_INVALID\",\n        \"domain\": \"googleapis.com\",\n        \"metadata\": {\n          \"service\": \"generativelanguage.googleapis.com\"\n        }\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.LocalizedMessage\",\n        \"locale\": \"en-US\",\n        \"message\": \"API Key not found. Please pass a valid API key.\"\n      }\n    ]\n  }\n}\n"
+    },
+    {
+      "channel": "blog",
+      "error": "Gemini API error (400): {\n  \"error\": {\n    \"code\": 400,\n    \"message\": \"API Key not found. Please pass a valid API key.\",\n    \"status\": \"INVALID_ARGUMENT\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.ErrorInfo\",\n        \"reason\": \"API_KEY_INVALID\",\n        \"domain\": \"googleapis.com\",\n        \"metadata\": {\n          \"service\": \"generativelanguage.googleapis.com\"\n        }\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.LocalizedMessage\",\n        \"locale\": \"en-US\",\n        \"message\": \"API Key not found. Please pass a valid API key.\"\n      }\n    ]\n  }\n}\n"
+    }
+  ],
+  "timestamp": "2026-04-05T08:29:35.053Z"
+}
